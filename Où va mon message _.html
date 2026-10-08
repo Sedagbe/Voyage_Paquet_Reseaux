@@ -1,0 +1,865 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Où va mon message ?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Concept : un salon privé la nuit. Verre fumé, filets champagne, aurore lente en fond.
+   Au centre une scène vectorielle (nette en 4K) où le colis glisse, s'emballe et se déballe.
+   Tailles en rem : toute la page grandit avec l'écran. */
+:root{
+  --bg:#06070d; --bg2:#0c1020; --glass:rgba(20,25,44,.62); --glass2:rgba(255,255,255,.04);
+  --line:rgba(255,255,255,.09); --line2:rgba(255,255,255,.18);
+  --fg:#f3f5fc; --muted:#a2abc6; --gold:#ebcf94; --gold2:#c99a45; --on-gold:#1a1305;
+  --ok:#4cd3a0; --bad:#ff7a8c; --accent:var(--gold);
+  --c7:#ff6fa3; --c6:#b78cff; --c4:#7d9bff; --c3:#4fd0e6; --c2:#4cd3a0; --c1:#ffb547;
+  --c7t:rgba(255,111,163,.15); --c6t:rgba(183,140,255,.15); --c4t:rgba(125,155,255,.15);
+  --c3t:rgba(79,208,230,.14); --c2t:rgba(76,211,160,.14); --c1t:rgba(255,181,71,.15);
+  --aur1:rgba(95,120,255,.30); --aur2:rgba(176,110,255,.22); --aur3:rgba(255,111,163,.16);
+  --shadow:0 .1rem .2rem rgba(0,0,0,.4),0 1.6rem 3.2rem -1.2rem rgba(0,0,0,.75);
+  --grain:.05;
+  --f-display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){
+  --bg:#eceff7; --bg2:#f7f8fc; --glass:rgba(255,255,255,.72); --glass2:rgba(20,30,70,.04);
+  --line:rgba(25,35,80,.11); --line2:rgba(25,35,80,.2);
+  --fg:#10162b; --muted:#566080; --gold:#8c5f12; --gold2:#b8832a; --on-gold:#fff8e8;
+  --ok:#0e7d58; --bad:#b4233a; --accent:#2b49d6;
+  --c7:#c2255c; --c6:#7b3fd1; --c4:#2447d6; --c3:#0b7f95; --c2:#12805c; --c1:#a86200;
+  --c7t:rgba(194,37,92,.10); --c6t:rgba(123,63,209,.10); --c4t:rgba(36,71,214,.10);
+  --c3t:rgba(11,127,149,.10); --c2t:rgba(18,128,92,.10); --c1t:rgba(168,98,0,.11);
+  --aur1:rgba(80,110,255,.20); --aur2:rgba(176,110,255,.14); --aur3:rgba(255,111,163,.12);
+  --shadow:0 .1rem .2rem rgba(20,30,70,.06),0 1.4rem 3rem -1.4rem rgba(20,30,70,.28);
+  --grain:.035; color-scheme:light}}
+:root[data-theme="light"]{
+  --bg:#eceff7; --bg2:#f7f8fc; --glass:rgba(255,255,255,.72); --glass2:rgba(20,30,70,.04);
+  --line:rgba(25,35,80,.11); --line2:rgba(25,35,80,.2);
+  --fg:#10162b; --muted:#566080; --gold:#8c5f12; --gold2:#b8832a; --on-gold:#fff8e8;
+  --ok:#0e7d58; --bad:#b4233a; --accent:#2b49d6;
+  --c7:#c2255c; --c6:#7b3fd1; --c4:#2447d6; --c3:#0b7f95; --c2:#12805c; --c1:#a86200;
+  --c7t:rgba(194,37,92,.10); --c6t:rgba(123,63,209,.10); --c4t:rgba(36,71,214,.10);
+  --c3t:rgba(11,127,149,.10); --c2t:rgba(18,128,92,.10); --c1t:rgba(168,98,0,.11);
+  --aur1:rgba(80,110,255,.20); --aur2:rgba(176,110,255,.14); --aur3:rgba(255,111,163,.12);
+  --shadow:0 .1rem .2rem rgba(20,30,70,.06),0 1.4rem 3rem -1.4rem rgba(20,30,70,.28);
+  --grain:.035; color-scheme:light}
+
+*{box-sizing:border-box}
+html{font-size:clamp(16px,.45vw + 10px,28px);scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+html,body{min-height:100%}
+body{background:var(--bg);color:var(--fg);font:400 .95rem/1.65 var(--f-body);padding-inline:1rem;padding-block:1.4rem 7rem;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;position:relative;overflow-x:hidden}
+h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;line-height:1.1}
+p{margin:0}
+button,input{font:inherit;color:inherit}
+:focus-visible{outline:.18rem solid var(--gold);outline-offset:.18rem;border-radius:.5rem}
+.mono{font-family:var(--f-mono)}
+
+/* Fond : aurore + grain */
+.aurora{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;background:radial-gradient(120% 90% at 50% -10%,var(--bg2),var(--bg) 60%)}
+.aurora i{position:absolute;border-radius:50%;filter:blur(7rem);will-change:transform;opacity:.9}
+.aurora i:nth-child(1){width:46rem;height:46rem;left:-10rem;top:-14rem;background:var(--aur1);animation:drift1 38s ease-in-out infinite alternate}
+.aurora i:nth-child(2){width:40rem;height:40rem;right:-12rem;top:8rem;background:var(--aur2);animation:drift2 46s ease-in-out infinite alternate}
+.aurora i:nth-child(3){width:34rem;height:34rem;left:30%;bottom:-16rem;background:var(--aur3);animation:drift3 52s ease-in-out infinite alternate}
+.aurora::after{content:"";position:absolute;inset:0;opacity:var(--grain);mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+@keyframes drift1{to{transform:translate3d(14rem,10rem,0) scale(1.15)}}
+@keyframes drift2{to{transform:translate3d(-12rem,14rem,0) scale(.9)}}
+@keyframes drift3{to{transform:translate3d(-16rem,-8rem,0) scale(1.2)}}
+
+.wrap{position:relative;z-index:1;max-width:76rem;margin:0 auto;display:flex;flex-direction:column;gap:1.3rem}
+
+/* Verre */
+.glass{background:var(--glass);border:1px solid var(--line);border-radius:1.4rem;box-shadow:var(--shadow);
+  -webkit-backdrop-filter:blur(1.2rem) saturate(1.3);backdrop-filter:blur(1.2rem) saturate(1.3);position:relative;isolation:isolate}
+.glass::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:-1;opacity:0;transition:opacity .4s;
+  background:radial-gradient(28rem circle at var(--mx,50%) var(--my,0%),rgba(235,207,148,.14),transparent 60%)}
+.glass:hover::before{opacity:1}
+.glass::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;padding:1px;
+  background:linear-gradient(160deg,rgba(235,207,148,.5),transparent 28%,transparent 72%,rgba(125,155,255,.28));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:.55}
+
+/* En-tête */
+.top{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:1.6rem 2.4rem;align-items:end;padding-top:.6rem}
+@media(max-width:900px){.top{grid-template-columns:minmax(0,1fr)}}
+.eyebrow{display:inline-flex;align-items:center;gap:.55rem;font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);font-weight:600}
+.eyebrow::before{content:"";width:2rem;height:1px;background:linear-gradient(90deg,transparent,var(--gold))}
+.top h1{font-size:clamp(2rem,4.6vw,3.7rem);font-weight:800;letter-spacing:-.025em;margin-top:.7rem}
+.top h1 em{font-style:normal;background:linear-gradient(100deg,var(--gold) 0%,#fff 40%,var(--c4) 75%,var(--gold) 100%);background-size:220% 100%;
+  -webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 7s ease-in-out infinite alternate}
+:root[data-theme="light"] .top h1 em{background-image:linear-gradient(100deg,#8c5f12,#2b49d6 55%,#8c5f12)}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]) .top h1 em{background-image:linear-gradient(100deg,#8c5f12,#2b49d6 55%,#8c5f12)}}
+@keyframes shine{to{background-position:100% 0}}
+.top .intro{color:var(--muted);max-width:52ch;margin-top:.9rem;font-size:1.02rem}
+.badges{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.1rem}
+.badges span{font-size:.76rem;padding:.3rem .8rem;border-radius:999px;border:1px solid var(--line2);background:var(--glass2);color:var(--fg)}
+.badges b{color:var(--gold);font-family:var(--f-mono);margin-right:.25rem}
+.send{padding:1.1rem 1.2rem;display:flex;gap:.6rem;flex-wrap:wrap;align-items:stretch;min-width:0}
+.send label{display:block;font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);width:100%;font-weight:600}
+.send input{flex:1 1 11rem;min-width:0;padding:.7rem .9rem;border:1px solid var(--line2);border-radius:.8rem;background:rgba(0,0,0,.18);font-family:var(--f-mono);transition:border-color .25s,box-shadow .25s}
+:root[data-theme="light"] .send input{background:rgba(255,255,255,.8)}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]) .send input{background:rgba(255,255,255,.8)}}
+.send input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 .25rem rgba(235,207,148,.18)}
+.send small{width:100%;color:var(--muted);font-size:.78rem}
+.btn{border:1px solid var(--line2);background:var(--glass2);padding:.65rem 1.1rem;border-radius:.8rem;cursor:pointer;font-weight:600;transition:transform .18s,border-color .25s,background .25s,box-shadow .25s}
+.btn:hover{border-color:var(--gold);transform:translateY(-1px)}
+.btn:active{transform:translateY(1px) scale(.98)}
+.btn.primary{background:linear-gradient(135deg,var(--gold),var(--gold2));border-color:transparent;color:var(--on-gold);box-shadow:0 .5rem 1.4rem -.5rem rgba(201,154,69,.7)}
+.btn.primary:hover{box-shadow:0 .7rem 1.8rem -.4rem rgba(235,207,148,.8)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+
+/* Fil des étapes */
+.stepsbox{position:relative}
+.steps{display:flex;gap:.4rem;overflow-x:auto;padding:.3rem .15rem .9rem;scrollbar-width:none;align-items:stretch}
+.steps::-webkit-scrollbar{display:none}
+.dot{flex:0 0 auto;min-width:3.1rem;padding:.5rem .65rem;border-radius:.85rem;border:1px solid var(--line);background:var(--glass2);cursor:pointer;text-align:center;font-size:.72rem;font-weight:500;color:var(--muted);display:flex;flex-direction:column;gap:.1rem;align-items:center;transition:transform .35s cubic-bezier(.2,.9,.3,1.3),background .4s,border-color .4s,color .4s,box-shadow .4s}
+.dot b{font-family:var(--f-mono);font-size:.82rem;color:var(--fg)}
+.dot:hover{transform:translateY(-.15rem)}
+.dot.done{border-color:color-mix(in srgb,var(--col) 55%,var(--line))}
+.dot.done b{color:var(--col)}
+.dot.on{background:var(--col);border-color:var(--col);color:var(--bg);transform:translateY(-.2rem) scale(1.06);box-shadow:0 .6rem 1.6rem -.4rem var(--col)}
+.dot.on b{color:var(--bg)}
+.dot.sep{align-self:center;min-width:auto;padding:0 .5rem;border:0;background:none;cursor:default;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);box-shadow:none;transform:none}
+.rail{height:2px;border-radius:2px;background:var(--line);margin-top:-.35rem;overflow:hidden}
+.rail i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--c7),var(--c4),var(--c2),var(--gold));transition:width .9s cubic-bezier(.65,0,.2,1)}
+
+/* Scène */
+.stage{padding:1.2rem;display:grid;grid-template-columns:9.6rem minmax(0,1fr) 9.6rem;gap:1rem;align-items:stretch}
+.tower{display:flex;flex-direction:column;gap:.32rem}
+.tower h3{font-size:.8rem;font-family:var(--f-body);font-weight:600;color:var(--fg);text-align:center}
+.tower .dir{font-size:.7rem;color:var(--gold);text-align:center;min-height:1.1rem;margin-bottom:.15rem;letter-spacing:.04em;transition:opacity .4s}
+.lay{display:flex;align-items:center;gap:.5rem;padding:.45rem .55rem;border-radius:.65rem;border:1px solid var(--line);background:var(--glass2);font-size:.74rem;line-height:1.2;color:var(--muted);transition:background .45s,border-color .45s,color .45s,transform .5s cubic-bezier(.2,.9,.3,1.3),box-shadow .5s}
+.lay i{font-style:normal;font-family:var(--f-mono);font-weight:600;width:1.3rem;height:1.3rem;border-radius:.4rem;display:grid;place-items:center;background:var(--col);color:var(--bg);flex:none;font-size:.7rem}
+.lay.on{background:var(--tint);border-color:var(--col);color:var(--fg);font-weight:600;transform:translateX(0) scale(1.06);box-shadow:0 0 1.6rem -.3rem var(--col)}
+.scene{min-width:0;display:flex;flex-direction:column;gap:.5rem;justify-content:center}
+.scene svg{width:100%;height:auto;display:block;overflow:visible;shape-rendering:geometricPrecision}
+svg text{font-family:var(--f-body)}
+.devfill{fill:url(#gDev);stroke:var(--line2);stroke-width:1.5}
+.devline{stroke:var(--muted);stroke-width:2;fill:none;stroke-linecap:round}
+.lbl{fill:var(--fg);font-size:14px;font-weight:600}
+.sub{fill:var(--muted);font-size:10.5px}
+.cable{stroke:var(--line2);stroke-width:7;stroke-linecap:round}
+.flow{stroke:url(#gFlow);stroke-width:3.2;stroke-linecap:round;stroke-dasharray:2 11;opacity:0;transition:opacity .5s;animation:flow .8s linear infinite}
+.flow.live{opacity:1}
+@keyframes flow{to{stroke-dashoffset:-13}}
+.pkt{transition:transform 1.35s cubic-bezier(.65,0,.2,1),opacity .5s ease}
+.pkt rect{transition:fill .5s,stroke .5s}
+.pkt .shine{animation:bob 3.2s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-3px)}}
+.led{transition:fill .3s}
+.sw-on .led.a{animation:blink .5s steps(2) infinite}
+.sw-on .led.b{animation:blink .5s steps(2) infinite .25s}
+@keyframes blink{50%{opacity:.25}}
+.bit{font-family:var(--f-mono);font-size:11px;font-weight:600;fill:var(--c1)}
+.where{fill:var(--muted);font-size:11.5px}
+@media(max-width:820px){
+  .stage{grid-template-columns:1fr 1fr;grid-template-areas:"a b" "s s"}
+  .tower.a{grid-area:a}.tower.b{grid-area:b}.scene{grid-area:s;order:3}
+  .lay{padding:.35rem .45rem;font-size:.68rem}
+}
+</style>
+<style>
+/* Explication en direct */
+.live{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:1.3rem}
+@media(max-width:900px){.live{grid-template-columns:minmax(0,1fr)}}
+.card{padding:1.5rem;min-width:0}
+.tag{display:inline-flex;align-items:center;gap:.5rem;font-size:.7rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--col);background:var(--tint);padding:.3rem .8rem;border-radius:999px;border:1px solid color-mix(in srgb,var(--col) 40%,transparent)}
+.explain h2{font-size:clamp(1.55rem,2.8vw,2.3rem);margin:.8rem 0 .7rem;font-weight:800;letter-spacing:-.015em}
+.explain .lead{font-size:1.06rem;max-width:62ch}
+.explain .lead b{color:var(--col)}
+.analogy{margin-top:1rem;padding:.8rem 1rem;border-radius:.9rem;background:var(--glass2);border:1px dashed var(--line2);max-width:66ch}
+.analogy small{display:block;font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:.15rem}
+.key{margin-top:1rem;display:flex;gap:.65rem;align-items:flex-start;max-width:66ch}
+.key svg{flex:none;margin-top:.25rem;width:1.1rem;height:1.1rem}
+.explain>*{animation:rise .7s cubic-bezier(.2,.8,.2,1) both}
+.explain>*:nth-child(2){animation-delay:.05s}.explain>*:nth-child(3){animation-delay:.12s}
+.explain>*:nth-child(4){animation-delay:.2s}.explain>*:nth-child(5){animation-delay:.28s}
+@keyframes rise{from{opacity:0;transform:translateY(.9rem);filter:blur(4px)}to{opacity:1;transform:none;filter:none}}
+.side h3{font-size:.95rem;font-family:var(--f-body);font-weight:600;margin-bottom:.6rem}
+.terms{display:flex;flex-direction:column;gap:.5rem;margin:0;padding:0;list-style:none}
+.terms li{font-size:.86rem;padding:.55rem .75rem;border-radius:.8rem;background:var(--glass2);border:1px solid var(--line);animation:rise .6s cubic-bezier(.2,.8,.2,1) both}
+.terms li:nth-child(2){animation-delay:.08s}.terms li:nth-child(3){animation-delay:.16s}
+.terms b{font-family:var(--f-mono);font-size:.8rem;color:var(--col)}
+.quiz{margin-top:1.1rem;border-top:1px solid var(--line);padding-top:1rem}
+.quiz p.q{font-weight:600;margin-bottom:.6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opt{padding:.5rem .8rem;border-radius:.7rem;border:1px solid var(--line2);background:var(--glass2);cursor:pointer;font-size:.88rem;transition:transform .2s,border-color .25s,background .25s}
+.opt:hover{border-color:var(--gold);transform:translateY(-1px)}
+.opt.good{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 18%,transparent)}
+.opt.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 16%,transparent);animation:shake .4s}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.quiz .why{margin-top:.6rem;font-size:.86rem;color:var(--muted);min-height:1.2em}
+
+/* Rayons X */
+.xray h2{font-size:1.3rem;font-weight:800}
+.xray .hint{color:var(--muted);font-size:.86rem;margin-top:.15rem}
+.nest{margin:1.2rem 0 1rem;display:flex;justify-content:center;overflow-x:auto;padding:.9rem .2rem .3rem}
+.box{border:2px solid var(--col);background:var(--tint);border-radius:.9rem;padding:1.35rem .8rem .8rem;position:relative;display:flex;gap:.4rem;align-items:stretch;min-width:0}
+.box>.cap{position:absolute;top:0;left:.8rem;transform:translateY(-55%);background:var(--col);color:var(--bg);font-size:.66rem;font-weight:600;letter-spacing:.04em;padding:.08rem .55rem;border-radius:.4rem;white-space:nowrap}
+.box .part{align-self:center;font-family:var(--f-mono);font-size:.74rem;font-weight:600;padding:.4rem .55rem;border-radius:.5rem;background:var(--col);color:var(--bg);white-space:nowrap}
+.box.top-wrap{animation:wrapin .8s cubic-bezier(.2,.9,.25,1.1) both}
+.box.leaving{animation:peel .38s cubic-bezier(.5,0,.8,.4) forwards}
+@keyframes wrapin{0%{transform:scale(.8);opacity:0;filter:blur(6px)}60%{opacity:1;filter:none}100%{transform:none;opacity:1}}
+@keyframes peel{to{transform:scale(1.12) translateY(-.6rem);opacity:0;filter:blur(6px)}}
+.bytes{display:flex;flex-wrap:wrap;gap:.4rem .5rem;font-family:var(--f-mono);font-size:.8rem}
+.fld{border:1px solid color-mix(in srgb,var(--col) 70%,transparent);background:var(--tint);border-radius:.55rem;padding:.2rem .5rem .25rem;cursor:pointer;display:flex;flex-direction:column;gap:.05rem;min-width:0;text-align:left;transition:background .25s,transform .25s,box-shadow .25s;animation:pop .5s cubic-bezier(.2,.9,.3,1.2) both;animation-delay:calc(var(--i)*14ms)}
+@keyframes pop{from{opacity:0;transform:translateY(.4rem) scale(.92)}to{opacity:1;transform:none}}
+.fld small{font-size:.58rem;letter-spacing:.05em;text-transform:uppercase;color:var(--col);font-weight:600;font-family:var(--f-body);white-space:nowrap}
+.fld span{font-weight:500;overflow-wrap:anywhere}
+.fld:hover{transform:translateY(-.12rem)}
+.fld:hover,.fld.sel{background:var(--col);box-shadow:0 .5rem 1.4rem -.5rem var(--col)}
+.fld:hover small,.fld:hover span,.fld.sel small,.fld.sel span{color:var(--bg)}
+.reader{margin-top:.9rem;padding:.8rem 1rem;border-radius:.9rem;background:var(--glass2);border:1px solid var(--line);font-size:.9rem;min-height:4.2rem}
+.reader b{font-family:var(--f-mono)}
+.reader.flash{animation:flash .6s}
+@keyframes flash{from{background:color-mix(in srgb,var(--gold) 22%,transparent)}}
+.total{margin-top:.6rem;font-size:.8rem;color:var(--muted);font-family:var(--f-mono)}
+.legend{display:flex;flex-wrap:wrap;gap:.4rem 1rem;margin-top:.6rem;font-size:.76rem;color:var(--muted)}
+.legend span{display:flex;align-items:center;gap:.4rem}
+.legend i{width:.7rem;height:.7rem;border-radius:.2rem;background:var(--col)}
+
+/* Barre de commande */
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:5;padding:.7rem 1rem calc(.7rem + env(safe-area-inset-bottom,0px));
+  background:var(--glass);-webkit-backdrop-filter:blur(1.4rem) saturate(1.4);backdrop-filter:blur(1.4rem) saturate(1.4);border-top:1px solid var(--line2)}
+.bar .in{max-width:76rem;margin:0 auto;display:flex;gap:.6rem;align-items:center;flex-wrap:wrap}
+.bar .count{font-family:var(--f-mono);font-size:.82rem;color:var(--muted);margin-right:auto}
+.speed{display:flex;align-items:center;gap:.5rem;font-size:.78rem;color:var(--muted)}
+.speed input{width:5.5rem;accent-color:var(--gold)}
+.themebtn{padding:.65rem .8rem}
+
+/* Récap */
+.recap h2{font-size:1.5rem;font-weight:800;margin-bottom:.2rem}
+.tblwrap{overflow-x:auto;margin-top:.8rem}
+table{border-collapse:collapse;width:100%;min-width:34rem;font-size:.9rem}
+th,td{text-align:left;padding:.6rem .65rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);font-weight:600}
+td .n{display:inline-grid;place-items:center;width:1.5rem;height:1.5rem;border-radius:.45rem;background:var(--col);color:var(--bg);font-family:var(--f-mono);font-weight:600;font-size:.76rem;margin-right:.4rem}
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:.8rem;margin-top:1rem}
+.notes div{padding:.8rem 1rem;border-radius:.9rem;background:var(--glass2);border:1px solid var(--line);font-size:.9rem}
+.notes b{display:block;margin-bottom:.15rem;color:var(--gold)}
+.foot{text-align:center;color:var(--muted);font-size:.8rem;padding:.4rem 0 1rem}
+.toast{position:fixed;left:50%;bottom:calc(5.4rem + env(safe-area-inset-bottom,0px));transform:translate(-50%,1rem);background:var(--fg);color:var(--bg);padding:.55rem 1rem;border-radius:.8rem;font-size:.85rem;opacity:0;pointer-events:none;transition:.35s;z-index:6;max-width:90vw}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+</style>
+<div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <span class="eyebrow">Les réseaux, expliqués pour de vrai</span>
+      <h1>Où va ton message <em>quand tu appuies sur Envoyer ?</em></h1>
+      <p class="intro">Alice écrit à Bob. Entre son clavier et l'écran de Bob, il se passe douze petites choses que personne ne voit. Prends ton temps : on les regarde ensemble, une par une, avec les vrais octets.</p>
+      <div class="badges"><span><b>7</b>couches</span><span><b>12</b>étapes</span><span><b>100 %</b>des octets calculés</span></div>
+    </div>
+    <form class="send glass" id="sendForm">
+      <label for="msg">Écris ton propre message</label>
+      <input id="msg" type="text" maxlength="40" value="Salut Bob" autocomplete="off" spellcheck="false">
+      <button class="btn primary" type="submit">Envoyer</button>
+      <small>Essaie un accent (é) ou un emoji : les octets changent.</small>
+    </form>
+  </header>
+
+  <div class="stepsbox">
+    <nav class="steps" id="steps" aria-label="Étapes du voyage"></nav>
+    <div class="rail" aria-hidden="true"><i id="railFill"></i></div>
+  </div>
+
+  <section class="stage glass" aria-label="Scène du réseau">
+    <div class="tower a" id="towerA"><h3>Alice · PC-A</h3><div class="dir" id="dirA"></div></div>
+    <div class="scene">
+      <svg viewBox="0 0 640 284" role="img" aria-label="Alice sur PC-A, un switch au centre, Bob sur PC-B">
+        <defs>
+          <linearGradient id="gDev" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--glass2)"/><stop offset="1" stop-color="var(--line)"/></linearGradient>
+          <linearGradient id="gFlow" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="var(--c1)"/><stop offset="1" stop-color="var(--gold)"/></linearGradient>
+          <linearGradient id="gScrA" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="var(--c4t)"/><stop offset="1" stop-color="var(--c7t)"/></linearGradient>
+          <linearGradient id="gScrB" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="var(--c2t)"/><stop offset="1" stop-color="var(--c3t)"/></linearGradient>
+        </defs>
+        <line class="cable" x1="118" y1="160" x2="268" y2="160"/>
+        <line class="cable" x1="372" y1="160" x2="522" y2="160"/>
+        <line class="flow" id="flow1" x1="118" y1="160" x2="268" y2="160"/>
+        <line class="flow" id="flow2" x1="372" y1="160" x2="522" y2="160"/>
+        <!-- PC-A -->
+        <g transform="translate(40,128)">
+          <rect class="devfill" x="0" y="0" width="80" height="54" rx="8"/>
+          <rect x="6" y="6" width="68" height="42" rx="4" fill="url(#gScrA)"/>
+          <path class="devline" d="M30 54 v9 M50 54 v9 M20 65 h40"/>
+          <circle cx="2" cy="2" r="11" fill="var(--c7)"/><text x="2" y="6.5" text-anchor="middle" font-size="12" font-weight="700" fill="var(--bg)">A</text>
+          <text class="lbl" x="40" y="88" text-anchor="middle">Alice</text>
+          <text class="sub" x="40" y="103" text-anchor="middle">192.168.1.10</text>
+          <text class="sub" x="40" y="117" text-anchor="middle">MAC …4D:5E</text>
+        </g>
+        <!-- Switch -->
+        <g transform="translate(268,138)" id="sw">
+          <rect class="devfill" x="0" y="0" width="104" height="44" rx="9"/>
+          <circle class="led a" cx="18" cy="22" r="4" fill="var(--c2)"/><circle class="led b" cx="36" cy="22" r="4" fill="var(--c2)"/>
+          <circle cx="54" cy="22" r="4" fill="var(--line2)"/><circle cx="72" cy="22" r="4" fill="var(--line2)"/><circle cx="90" cy="22" r="4" fill="var(--line2)"/>
+          <text class="lbl" x="52" y="66" text-anchor="middle">Switch</text>
+          <text class="sub" x="52" y="81" text-anchor="middle">niveau 2 : lit les MAC</text>
+        </g>
+        <!-- PC-B -->
+        <g transform="translate(520,128)">
+          <rect class="devfill" x="0" y="0" width="80" height="54" rx="8"/>
+          <rect x="6" y="6" width="68" height="42" rx="4" fill="url(#gScrB)"/>
+          <path class="devline" d="M30 54 v9 M50 54 v9 M20 65 h40"/>
+          <circle cx="2" cy="2" r="11" fill="var(--c2)"/><text x="2" y="6.5" text-anchor="middle" font-size="12" font-weight="700" fill="var(--bg)">B</text>
+          <text class="lbl" x="40" y="88" text-anchor="middle">Bob</text>
+          <text class="sub" x="40" y="103" text-anchor="middle">192.168.1.50</text>
+          <text class="sub" x="40" y="117" text-anchor="middle">MAC …EE:FF</text>
+        </g>
+        <!-- Flux de bits -->
+        <g id="stream" opacity="0"></g>
+        <text class="bit" id="bits" x="194" y="143" text-anchor="middle" opacity="0"></text>
+        <!-- Bulles -->
+        <g id="bubA" opacity="0"><rect rx="10" height="32" fill="var(--glass)" stroke="var(--gold)" stroke-width="1.2"/><text class="sub" y="20" text-anchor="middle" style="fill:var(--fg)"></text></g>
+        <g id="bubS" opacity="0"><rect rx="10" height="32" fill="var(--glass)" stroke="var(--gold)" stroke-width="1.2"/><text class="sub" y="20" text-anchor="middle" style="fill:var(--fg)"></text></g>
+        <g id="bubB" opacity="0"><rect rx="10" height="32" fill="var(--glass)" stroke="var(--gold)" stroke-width="1.2"/><text class="sub" y="20" text-anchor="middle" style="fill:var(--fg)"></text></g>
+        <!-- Colis -->
+        <g class="pkt" id="pkt" style="transform:translate(80px,88px)" opacity="0">
+          <g class="shine">
+            <rect id="pktR" x="-52" y="-16" width="104" height="32" rx="10" fill="var(--c7t)" stroke="var(--c7)" stroke-width="2.2"/>
+            <text id="pktT" x="0" y="4.5" text-anchor="middle" font-size="12" font-weight="600" style="fill:var(--fg)"></text>
+          </g>
+        </g>
+        <text class="where" id="where" x="320" y="276" text-anchor="middle"></text>
+      </svg>
+    </div>
+    <div class="tower b" id="towerB"><h3>Bob · PC-B</h3><div class="dir" id="dirB"></div></div>
+  </section>
+
+  <section class="live">
+    <article class="card glass explain" id="explain" aria-live="polite"></article>
+    <aside class="card glass side">
+      <h3>Les mots de cette étape</h3>
+      <ul class="terms" id="terms"></ul>
+      <div class="quiz" id="quiz"></div>
+    </aside>
+  </section>
+
+  <section class="card glass xray">
+    <h2>Le colis, vu aux rayons X</h2>
+    <p class="hint" id="xhint">En haut, les enveloppes emboîtées. En bas, les vrais octets en hexadécimal. Clique sur un bloc pour le décoder.</p>
+    <div class="nest" id="nest"></div>
+    <div class="bytes" id="bytes"></div>
+    <div class="reader" id="reader">Clique sur un bloc coloré pour le décoder.</div>
+    <div class="total" id="total"></div>
+    <div class="legend" id="legend"></div>
+  </section>
+
+  <section class="card glass recap">
+    <h2>Ce qu'il faut retenir</h2>
+    <p class="hint" style="color:var(--muted)">Chaque couche fait son travail et ne lit que son propre en-tête. C'est ça, la magie.</p>
+    <div class="tblwrap"><table>
+      <thead><tr><th>Couche</th><th>Nom du colis</th><th>Adresse utilisée</th><th>Matériel typique</th></tr></thead>
+      <tbody>
+        <tr style="--col:var(--c7)"><td><span class="n">7</span>Application</td><td>Données</td><td>Nom / URL</td><td>Navigateur, appli de chat</td></tr>
+        <tr style="--col:var(--c6)"><td><span class="n">6</span>Présentation</td><td>Données encodées</td><td>—</td><td>Encodage UTF-8, chiffrement TLS</td></tr>
+        <tr style="--col:var(--c6)"><td><span class="n">5</span>Session</td><td>Données</td><td>—</td><td>Ouverture et suivi de la conversation</td></tr>
+        <tr style="--col:var(--c4)"><td><span class="n">4</span>Transport</td><td>Segment</td><td>Port</td><td>TCP, UDP</td></tr>
+        <tr style="--col:var(--c3)"><td><span class="n">3</span>Réseau</td><td>Paquet</td><td>Adresse IP</td><td>Routeur</td></tr>
+        <tr style="--col:var(--c2)"><td><span class="n">2</span>Liaison</td><td>Trame</td><td>Adresse MAC</td><td>Switch, carte réseau</td></tr>
+        <tr style="--col:var(--c1)"><td><span class="n">1</span>Physique</td><td>Bits</td><td>—</td><td>Câble, Wi-Fi, fibre</td></tr>
+      </tbody></table></div>
+    <div class="notes">
+      <div><b>Emballer, puis déballer</b>L'émetteur ajoute un en-tête par couche en descendant. Le récepteur en retire un par couche en remontant.</div>
+      <div><b>MAC = voisin, IP = adresse postale</b>La MAC sert dans le réseau local, de voisin à voisin. L'IP identifie la machine de bout en bout.</div>
+      <div><b>En vrai, 5-6-7 vont ensemble</b>Dans le modèle TCP/IP, une seule couche application remplace les couches 5, 6 et 7.</div>
+    </div>
+  </section>
+  <p class="foot">Raccourcis : ← → pour naviguer, clique sur les étapes pour sauter.</p>
+</div>
+
+<div class="bar"><div class="in">
+  <span class="count" id="count">Étape 1 sur 12</span>
+  <label class="speed">Vitesse <input id="speed" type="range" min="1" max="3" step="1" value="1" aria-label="Vitesse de lecture automatique"></label>
+  <button class="btn themebtn" id="btnTheme" type="button" aria-label="Changer de thème"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" style="display:block"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor"/></svg></button>
+  <button class="btn" id="btnPlay" type="button">▶ Lecture auto</button>
+  <button class="btn" id="btnPrev" type="button">← Précédent</button>
+  <button class="btn primary" id="btnNext" type="button">Suivant →</button>
+</div></div>
+<div class="toast" id="toast" role="status"></div>
+<script>
+/* ===== Calculs réels (aucune valeur écrite en dur pour le message) ===== */
+const CFG = {
+  ipA:[192,168,1,10], ipB:[192,168,1,50],
+  macA:[0x00,0x1a,0x2b,0x3c,0x4d,0x5e], macB:[0xaa,0xbb,0xcc,0xdd,0xee,0xff],
+  portA:49152, portB:5000, seq:1000, ack:2000
+};
+const be16 = n => [(n>>8)&255, n&255];
+const be32 = n => [(n>>>24)&255,(n>>>16)&255,(n>>>8)&255,n&255];
+const h2 = b => b.toString(16).padStart(2,'0');
+const hexs = arr => Array.from(arr).map(h2);
+const enc = s => Array.from(new TextEncoder().encode(s));
+
+function csum16(bytes){
+  let sum = 0;
+  for (let i=0;i<bytes.length;i+=2){ sum += (bytes[i]<<8) | (i+1<bytes.length ? bytes[i+1] : 0); }
+  while (sum>>>16) sum = (sum & 0xffff) + (sum>>>16);
+  return (~sum) & 0xffff;
+}
+const CRC_T = (()=>{ const t=[]; for(let n=0;n<256;n++){ let c=n; for(let k=0;k<8;k++) c = c&1 ? 0xedb88320 ^ (c>>>1) : c>>>1; t.push(c>>>0);} return t; })();
+function crc32(bytes){ let c=0xffffffff; for(const b of bytes) c = CRC_T[(c^b)&255] ^ (c>>>8); return (c ^ 0xffffffff)>>>0; }
+
+function buildModel(msg){
+  const payload = enc(msg);
+  // --- TCP (20 octets) ---
+  const tcpNoSum = [...be16(CFG.portA), ...be16(CFG.portB), ...be32(CFG.seq), ...be32(CFG.ack), 0x50,0x18, ...be16(64240), 0,0, 0,0];
+  const tcpLen = tcpNoSum.length + payload.length;
+  const pseudo = [...CFG.ipA, ...CFG.ipB, 0, 6, ...be16(tcpLen)];
+  const tcpSum = csum16([...pseudo, ...tcpNoSum, ...payload]);
+  const tcp = tcpNoSum.slice(); tcp[16]=tcpSum>>8; tcp[17]=tcpSum&255;
+  const segment = [...tcp, ...payload];
+  // --- IP (20 octets) ---
+  const total = 20 + segment.length;
+  const ipNoSum = [0x45,0x00, ...be16(total), 0x1c,0x46, 0x40,0x00, 64, 6, 0,0, ...CFG.ipA, ...CFG.ipB];
+  const ipSum = csum16(ipNoSum);
+  const ip = ipNoSum.slice(); ip[10]=ipSum>>8; ip[11]=ipSum&255;
+  const packet = [...ip, ...segment];
+  // --- Ethernet ---
+  const ethH = [...CFG.macB, ...CFG.macA, 0x08, 0x00];
+  const pad = Math.max(0, 46 - packet.length);
+  const padBytes = new Array(pad).fill(0);
+  const fcs = crc32([...ethH, ...packet, ...padBytes]);
+  const fcsBytes = [fcs&255,(fcs>>>8)&255,(fcs>>>16)&255,(fcs>>>24)&255]; // transmis octet de poids faible d'abord
+  const frameLen = ethH.length + packet.length + pad + 4;
+  return { msg, payload, tcp, tcpSum, tcpLen, segment, ip, ipSum, total, packet, ethH, pad, padBytes, fcs, fcsBytes, frameLen };
+}
+const macStr = m => m.map(h2).join(':').toUpperCase();
+const ipStr = a => a.join('.');
+const fmtHex32 = n => '0x' + n.toString(16).padStart(8,'0').toUpperCase();
+if (typeof module !== 'undefined') module.exports = { buildModel, csum16, crc32 };
+/* ===== Champs expliqués de chaque en-tête ===== */
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const F = (L, name, bytes, meaning, txt) => ({ L, name, bytes, meaning, txt: txt ?? hexs(bytes).join(' ') });
+
+function fText(m){ return [F('7','Texte', m.payload, `C'est <b>ton message tel que tu l'as tapé</b> : "${esc(m.msg)}". Pour l'ordinateur, ce n'est pas encore du réseau, juste du texte dans une application.`, `"${m.msg}"`)]; }
+function fChars(m){
+  return Array.from(m.msg).map(ch => {
+    const b = enc(ch);
+    return F('6', `"${ch === ' ' ? '␣' : ch}"`, b, `Le caractère <b>${ch === ' ' ? 'espace' : esc(ch)}</b> devient ${b.length > 1 ? 'les <b>' + b.length + ' octets</b>' : "l'octet"} <b>${hexs(b).join(' ')}</b> (norme UTF-8). Les lettres de base tiennent sur 1 octet, les lettres accentuées sur 2.`);
+  });
+}
+function fData(m){ return [F('7','Données', m.payload, `Ton message en octets (<b>${m.payload.length}</b> octets). C'est la <b>charge utile</b> : le contenu qui compte vraiment. Tout le reste ne sert qu'à l'acheminer.`)]; }
+function fTcp(m){
+  const t = m.tcp;
+  return [
+    F('4','Port source', t.slice(0,2), `Le port de <b>PC-A</b> : <b>${CFG.portA}</b>. Choisi au hasard par le système, il permet à la réponse de retrouver la bonne application.`),
+    F('4','Port destination', t.slice(2,4), `Le port visé sur PC-B : <b>${CFG.portB}</b>. Un port, c'est comme un numéro de guichet : il désigne l'application qui doit recevoir le message.`),
+    F('4','N° de séquence', t.slice(4,8), `<b>${CFG.seq}</b> : le numéro du premier octet envoyé. Il sert à remettre les morceaux dans l'ordre à l'arrivée.`),
+    F('4','N° d\'acquittement', t.slice(8,12), `<b>${CFG.ack}</b> : « j'ai bien reçu tes octets jusqu'au numéro ${CFG.ack} ». TCP vérifie que rien ne se perd.`),
+    F('4','Taille + drapeaux', t.slice(12,14), `<b>5018</b> : l'en-tête fait 5 × 4 = 20 octets, et les drapeaux <b>PSH</b> (« transmets vite à l'appli ») et <b>ACK</b> (« j'accuse réception ») sont levés.`),
+    F('4','Fenêtre', t.slice(14,16), `<b>${(t[14]<<8)|t[15]}</b> : combien d'octets PC-A accepte de recevoir avant de devoir répondre. C'est le contrôle de flux.`),
+    F('4','Checksum TCP', t.slice(16,18), `<b>${fmtHex16(m.tcpSum)}</b> : une somme de contrôle calculée sur l'en-tête, les données et les adresses IP. Si un seul bit change en route, PC-B le verra.`),
+    F('4','Pointeur urgent', t.slice(18,20), `<b>0000</b> : inutilisé ici (le drapeau URG n'est pas levé).`)
+  ];
+}
+function fmtHex16(n){ return '0x' + n.toString(16).padStart(4,'0').toUpperCase(); }
+function fIp(m){
+  const p = m.ip;
+  return [
+    F('3','Version + taille', p.slice(0,1), `<b>4</b> = IPv4, <b>5</b> = 5 blocs de 4 octets, soit 20 octets d'en-tête.`),
+    F('3','Service', p.slice(1,2), `<b>00</b> : pas de priorité particulière pour ce paquet.`),
+    F('3','Longueur totale', p.slice(2,4), `<b>${m.total}</b> octets : 20 (IP) + 20 (TCP) + ${m.payload.length} (ton message).`),
+    F('3','Identifiant', p.slice(4,6), `Un numéro qui identifie ce paquet, utile s'il faut le découper en morceaux.`),
+    F('3','Drapeaux + fragment', p.slice(6,8), `<b>4000</b> : le drapeau <b>DF</b> interdit de découper le paquet.`),
+    F('3','TTL', p.slice(8,9), `<b>64</b> : durée de vie. Chaque routeur traversé enlève 1. À 0, le paquet est détruit, ce qui évite qu'il tourne éternellement.`),
+    F('3','Protocole', p.slice(9,10), `<b>06</b> = TCP. Cela dit à PC-B à quelle couche supérieure confier le contenu.`),
+    F('3','Checksum IP', p.slice(10,12), `<b>${fmtHex16(m.ipSum)}</b> : somme de contrôle de l'en-tête IP seul, recalculée à chaque saut.`),
+    F('3','IP source', p.slice(12,16), `<b>${ipStr(CFG.ipA)}</b> : l'adresse de PC-A. Chaque octet en hexadécimal vaut un nombre de 0 à 255 : ici ${CFG.ipA.join(' · ')}.`),
+    F('3','IP destination', p.slice(16,20), `<b>${ipStr(CFG.ipB)}</b> : l'adresse de PC-B, la destination finale du paquet.`)
+  ];
+}
+function fEthHead(m){
+  const e = m.ethH;
+  return [
+    F('2','MAC destination', e.slice(0,6), `<b>${macStr(CFG.macB)}</b> : la carte réseau de PC-B. Cette adresse est gravée dans la carte à l'usine et ne sert qu'<b>à l'intérieur du réseau local</b>.`),
+    F('2','MAC source', e.slice(6,12), `<b>${macStr(CFG.macA)}</b> : la carte réseau de PC-A. Le switch s'en sert pour apprendre où se trouve PC-A.`),
+    F('2','Type', e.slice(12,14), `<b>0800</b> = « ce qu'il y a dedans est un paquet IPv4 ».`)
+  ];
+}
+function fEthTail(m){
+  const out = [];
+  if (m.pad) out.push(F('2','Bourrage', m.padBytes, `<b>${m.pad}</b> octet(s) à zéro ajouté(s) : une trame Ethernet doit contenir au moins 46 octets utiles. Ton message est court, donc on complète.`));
+  out.push(F('2','FCS (CRC32)', m.fcsBytes, `<b>${fmtHex32(m.fcs)}</b> : une empreinte calculée sur toute la trame. PC-B refait le même calcul : si le résultat diffère, la trame est jetée.`));
+  return out;
+}
+function fArp(){
+  const bc = [255,255,255,255,255,255];
+  return [
+    F('2','MAC destination', bc, `<b>FF:FF:FF:FF:FF:FF</b> : l'adresse de <b>diffusion</b> (broadcast). Tout le monde sur le réseau local reçoit ce message.`),
+    F('2','MAC source', CFG.macA, `<b>${macStr(CFG.macA)}</b> : PC-A se présente.`),
+    F('2','Type', [0x08,0x06], `<b>0806</b> = « ce message est une requête ARP ».`),
+    F('3','Format', [0,1,8,0,6,4], `<b>0001 0800 06 04</b> : « réseau Ethernet, adresses IPv4, MAC de 6 octets, IP de 4 octets ». Le message ARP fait 28 octets en tout.`),
+    F('3','Opération', [0,1], `<b>0001</b> = demande (« qui a cette IP ? »). La réponse portera la valeur 0002.`),
+    F('3','MAC de l\'émetteur', CFG.macA, `Dans la demande, PC-A rappelle sa propre adresse MAC.`),
+    F('3','IP de l\'émetteur', CFG.ipA, `<b>${ipStr(CFG.ipA)}</b> : l'IP de PC-A.`),
+    F('3','MAC cherchée', [0,0,0,0,0,0], `<b>00:00:00:00:00:00</b> : c'est justement ce qu'on ne connaît pas encore.`),
+    F('3','IP cherchée', CFG.ipB, `<b>${ipStr(CFG.ipB)}</b> : « qui possède cette adresse IP ? »`)
+  ];
+}
+/* ===== Le scénario pédagogique ===== */
+const STEPS = [
+ { tab:'Écrire', L:'7', tag:'Couche 7 · Application · PC-A', title:'Tu écris à Bob',
+   lead:m=>`Tu es Alice. Dans ton petit programme de discussion, tu as tapé <b>"${esc(m.msg)}"</b> pour Bob et tu appuies sur Envoyer. Pour l'instant ce n'est que du texte : le réseau n'est pas encore au courant.`,
+   analogy:`Tu viens d'écrire une lettre. Elle est sur ton bureau, pas encore dans une enveloppe.`,
+   key:`La couche 7 est celle que tu vois. Elle fournit le contenu, ici le texte de ton message.`,
+   terms:[['Application','Le programme que tu utilises (navigateur, messagerie…).'],['Charge utile','Le vrai contenu à transporter, par opposition aux en-têtes.']],
+   quiz:{q:'À cette étape, que contient le colis ?',o:['Un en-tête IP','Seulement ton texte','Des bits sur un câble'],a:1,why:"Aucun en-tête n'a encore été ajouté : il n'y a que ton message."},
+   A:['7'],B:[],view:'text',pkt:{x:80,y:88,label:m=>`"${m.msg.slice(0,9)}"`,L:'7'},bub:{},where:'Tout se passe dans PC-A' },
+
+ { tab:'Encoder', L:'6', tag:'Couches 6 et 5 · Présentation et Session · PC-A', title:"Ton texte devient des nombres",
+   lead:m=>`Un ordinateur ne comprend que des nombres. Chaque caractère est donc converti en octets selon la norme <b>UTF-8</b> : ton message de ${Array.from(m.msg).length} caractère(s) devient <b>${m.payload.length} octet(s)</b>. La couche session ouvre aussi la « conversation » entre les deux applications.`,
+   analogy:`Tu traduis ta lettre dans un code que la poste sait lire, et tu notes qu'il s'agit d'une conversation suivie avec Bob.`,
+   key:`Le même texte donne toujours les mêmes octets. Essaie un accent (é) : il prend 2 octets. Dans la réalité, c'est aussi ici que le chiffrement TLS se place.`,
+   terms:[['Octet','8 bits. On l\'écrit avec 2 chiffres hexadécimaux, par exemple 53.'],['UTF-8','Une table qui associe chaque caractère à un ou plusieurs octets.'],['Hexadécimal','Une écriture en base 16 (0-9 puis A-F), plus courte que le binaire.']],
+   quiz:{q:'Combien d\'octets prend la lettre "S" en UTF-8 ?',o:['1','2','8'],a:0,why:'Les lettres de base (ASCII) tiennent sur un seul octet. Seuls les caractères comme é ou € en demandent plus.'},
+   A:['6','5'],B:[],view:'chars',pkt:{x:80,y:88,label:m=>hexs(m.payload.slice(0,3)).join(' ')+'…',L:'6'},bub:{},where:'Toujours dans PC-A' },
+
+ { tab:'TCP', L:'4', tag:'Couche 4 · Transport · PC-A', title:'On note le numéro de guichet (le port)',
+   lead:m=>`La couche transport colle un <b>en-tête TCP</b> de 20 octets devant tes données. Il contient le <b>port</b> de destination (<b>${CFG.portB}</b>, le guichet de l'appli de chat sur PC-B) et des numéros qui permettent de remettre les morceaux dans l'ordre. Le colis s'appelle maintenant un <b>segment</b>.`,
+   analogy:`Tu mets ta lettre dans une première enveloppe avec : « Pour le service Discussion, guichet n° ${CFG.portB} ». Et tu numérotes tes feuilles.`,
+   key:`TCP garantit que tout arrive, dans l'ordre. Ici on suppose que la connexion est déjà ouverte (la « poignée de main » SYN, SYN-ACK, ACK a eu lieu avant).`,
+   terms:[['Port','Numéro (0 à 65535) qui désigne une application sur une machine.'],['Segment','Le nom du colis à la couche 4.'],['Checksum','Somme de contrôle pour détecter une erreur de transmission.']],
+   quiz:{q:'À quoi sert le port de destination ?',o:['À trouver la bonne machine','À trouver la bonne application','À choisir le câble'],a:1,why:"La machine est trouvée grâce à l'adresse IP. Le port désigne l'application sur cette machine."},
+   A:['4'],B:[],view:'tcp',pkt:{x:80,y:88,label:()=>'TCP | données',L:'4'},bub:{},where:'Toujours dans PC-A' },
+
+ { tab:'ARP', L:'3', tag:'Couches 3 et 2 · ARP · PC-A et PC-B', title:"Où habite Bob ? On demande à tout le monde",
+   lead:m=>`PC-A connaît l'<b>IP</b> de Bob (${ipStr(CFG.ipB)}), mais pour parler dans le réseau local il lui faut son <b>adresse MAC</b>. Il crie donc à tout le monde : <b>« Qui a l'IP ${ipStr(CFG.ipB)} ? »</b> (requête ARP en diffusion). Seul Bob répond, directement, avec sa MAC : <b>${macStr(CFG.macB)}</b>.`,
+   analogy:`Tu connais le nom d'un voisin mais pas sa boîte aux lettres. Tu cries dans l'immeuble : « Qui est Bob ? » et Bob répond « Moi, porte B ! ».`,
+   key:`ARP fait le lien entre une adresse IP (logique) et une adresse MAC (physique). Les résultats sont gardés quelques minutes dans une table ARP.`,
+   terms:[['ARP','Protocole qui demande « quelle MAC pour cette IP ? ».'],['Broadcast','Message envoyé à toutes les machines du réseau local (MAC FF:FF:FF:FF:FF:FF).'],['Adresse MAC','Identifiant de 6 octets gravé dans une carte réseau.']],
+   quiz:{q:'Pourquoi la requête ARP est-elle envoyée à tout le monde ?',o:['Parce que PC-A ne connaît pas encore la MAC de Bob','Pour ralentir le réseau','Parce que Bob est en panne'],a:0,why:"Sans la MAC, impossible d'adresser Bob directement. On demande donc à tous, et seul le propriétaire de l'IP répond."},
+   A:['3'],B:['3'],view:'arp',pkt:{x:80,y:88,label:()=>'ARP : qui ?',L:'3'},bub:{A:m=>`Qui a ${ipStr(CFG.ipB)} ?`,B:()=>`Moi ! MAC …EE:FF`},where:"PC-A diffuse sa question, PC-B répond" },
+
+ { tab:'IP', L:'3', tag:'Couche 3 · Réseau · PC-A', title:"On écrit l'adresse IP sur l'enveloppe",
+   lead:m=>`La couche réseau ajoute un <b>en-tête IP</b> de 20 octets avec l'adresse de PC-A (<b>${ipStr(CFG.ipA)}</b>) et celle de PC-B (<b>${ipStr(CFG.ipB)}</b>). Le colis devient un <b>paquet</b> de ${m.total} octets. Son <b>checksum</b> (${fmtHex16(m.ipSum)}) a été calculé pour de vrai sur ces 20 octets.`,
+   analogy:`Tu glisses l'enveloppe TCP dans une deuxième enveloppe avec l'adresse postale complète : expéditeur et destinataire.`,
+   key:`L'adresse IP permet d'aller n'importe où, même à travers plusieurs réseaux. Ici il n'y a qu'un réseau, mais les routeurs lisent exactement cet en-tête.`,
+   terms:[['Adresse IP','Adresse logique d\'une machine, par exemple 192.168.1.50.'],['TTL','Durée de vie du paquet, diminuée de 1 à chaque routeur.'],['Paquet','Le nom du colis à la couche 3.']],
+   quiz:{q:'Quel nom porte le colis à la couche 3 ?',o:['Segment','Paquet','Trame'],a:1,why:'Segment (couche 4), paquet (couche 3), trame (couche 2) : un colis par couche.'},
+   A:['3'],B:[],view:'ip',pkt:{x:80,y:88,label:()=>'IP | TCP | …',L:'3'},bub:{},where:'Toujours dans PC-A' },
+
+ { tab:'Trame', L:'2', tag:'Couche 2 · Liaison de données · PC-A', title:'Dernière enveloppe : l\'adresse MAC',
+   lead:m=>`La carte réseau enveloppe le paquet dans une <b>trame Ethernet</b> : un en-tête avec la MAC de Bob (<b>${macStr(CFG.macB)}</b>, trouvée grâce à ARP) et la MAC de PC-A, plus une empreinte <b>FCS</b> (CRC32 = <b>${fmtHex32(m.fcs)}</b>) à la fin.${m.pad ? ` Ton message est court : ${m.pad} octet(s) de bourrage ont été ajoutés.` : ''} Total : <b>${m.frameLen} octets</b>.`,
+   analogy:`Dernière enveloppe : « Pour la boîte aux lettres de Bob, à l'intérieur de l'immeuble », avec un cachet qui prouve que rien n'a été ouvert.`,
+   key:`Le colis est prêt. Les adresses MAC ne servent que sur le réseau local : elles changent à chaque saut d'un routeur, alors que les IP restent les mêmes.`,
+   terms:[['Trame','Le nom du colis à la couche 2.'],['FCS / CRC32','Empreinte de fin de trame pour détecter une corruption.'],['EtherType','Champ qui indique quel protocole est à l\'intérieur (0800 = IPv4).']],
+   quiz:{q:'Que contient l\'en-tête Ethernet ?',o:['Les adresses IP','Les adresses MAC','Les ports'],a:1,why:"Ethernet (couche 2) ne connaît que les adresses MAC. Les IP sont dans l'enveloppe du dessous, les ports encore en dessous."},
+   A:['2'],B:[],view:'eth',pkt:{x:80,y:88,label:()=>'Trame Ethernet',L:'2'},bub:{},where:'PC-A a fini d\'emballer : 3 en-têtes et un FCS' },
+
+ { tab:'Bits', L:'1', tag:'Couche 1 · Physique · câble', title:'Ton message prend la route',
+   lead:m=>`La carte réseau transforme chaque octet en <b>bits</b> (des 0 et des 1) puis en signal : variations de tension dans un câble cuivre, lumière dans une fibre, ondes en Wi-Fi. Les ${m.frameLen} octets partent donc comme <b>${m.frameLen * 8} bits</b> vers le switch. Le début de la trame, c'est la MAC de Bob.`,
+   analogy:`Le facteur prend l'enveloppe et la transporte physiquement. Plus de lettres, plus d'adresses : juste un trajet.`,
+   key:`La couche 1 ne comprend rien au contenu. Elle déplace des 0 et des 1, c'est tout.`,
+   terms:[['Bit','La plus petite information : 0 ou 1.'],['Signal','Tension, lumière ou onde qui représente les bits.'],['Câble Ethernet','Cuivre torsadé (RJ45) ou fibre optique.']],
+   quiz:{q:'Que transporte le câble ?',o:['Des mots','Des bits sous forme de signal','Des adresses seulement'],a:1,why:'Le câble ne voit que des signaux. Les mots, adresses et ports ne sont que des conventions entre les couches.'},
+   A:['1'],B:[],view:'eth',pkt:{x:194,y:160,label:()=>'0101 1010…',L:'1'},bub:{},bits:true,cable:1,hide:true,where:'Les bits voyagent de PC-A vers le switch' },
+
+ { tab:'Switch', L:'2', tag:'Couche 2 · Switch', title:'Le switch aiguille sans rien ouvrir de plus',
+   lead:m=>`Le switch rassemble les bits en trame et regarde <b>uniquement</b> la MAC de destination (<b>${macStr(CFG.macB)}</b>). Sa table lui dit que cette MAC est derrière le port 2 : il y envoie la trame, et seulement là. Il ne lit ni l'IP ni les ports : ça ne le concerne pas.`,
+   analogy:`Le trieur de l'immeuble lit seulement la boîte aux lettres écrite sur la dernière enveloppe et dépose le courrier au bon étage.`,
+   key:`Un switch travaille à la couche 2. Un routeur, lui, ouvrirait aussi l'enveloppe IP pour décider d'un autre réseau.`,
+   terms:[['Switch','Équipement qui relie les machines d\'un réseau local en lisant les MAC.'],['Table MAC','Liste « adresse MAC → port » apprise en observant les trames.'],['Port','Ici : une prise du switch (à ne pas confondre avec un port TCP).']],
+   quiz:{q:'Que lit un switch pour décider où envoyer la trame ?',o:['L\'IP de destination','Le port TCP','La MAC de destination'],a:2,why:"Le switch est un équipement de couche 2 : il ne regarde que les adresses MAC."},
+   A:[],B:[],view:'eth',sel:'MAC destination',pkt:{x:320,y:88,label:()=>'Trame Ethernet',L:'2'},bub:{S:()=>`${macStr(CFG.macB).slice(0,8)}… → port 2`},where:'Le switch aiguille la trame' },
+
+ { tab:'Réception', L:'2', tag:'Couches 1 et 2 · PC-B', title:'Bob reçoit le colis et vérifie que rien n\'est abîmé',
+   lead:m=>`La carte réseau de Bob capte le signal, reconstruit les bits en octets, puis contrôle deux choses : la MAC de destination est bien la sienne, et le <b>CRC32 recalculé</b> (${fmtHex32(m.fcs)}) correspond au FCS reçu. Tout est bon, elle retire alors l'en-tête et le FCS et passe le paquet vers le haut.`,
+   analogy:`Bob ouvre la dernière enveloppe : c'est bien sa boîte, et le cachet est intact. Il jette cette enveloppe et garde celle du dessous.`,
+   key:`À la réception, on suit le chemin inverse : on <b>décapsule</b>, une couche à la fois, de la 1 vers la 7. Chaque couche ne lit que son propre en-tête.`,
+   terms:[['Décapsulation','Retirer les en-têtes un par un en remontant les couches.'],['NIC','Carte réseau (Network Interface Card).'],['Trame invalide','Trame jetée en silence si la MAC ou le CRC ne correspond pas.']],
+   quiz:{q:'Que se passe-t-il si le CRC calculé ne correspond pas au FCS ?',o:['La trame est jetée','Elle est transmise quand même','Bob la corrige'],a:0,why:"La trame est considérée comme abîmée et supprimée. C'est TCP, plus haut, qui s'apercevra qu'il manque des octets et les redemandera."},
+   A:[],B:['2','1'],view:'eth',pkt:{x:560,y:88,label:()=>'Trame Ethernet',L:'2'},bub:{B:()=>'MAC OK · CRC OK'},cable:2,where:'La trame arrive dans PC-B' },
+
+ { tab:'Contrôle IP', L:'3', tag:'Couche 3 · Réseau · PC-B', title:"Bob vérifie que l'adresse IP est bien la sienne",
+   lead:m=>`L'en-tête IP est lu : l'adresse de destination est <b>${ipStr(CFG.ipB)}</b>, c'est bien PC-B. Le checksum IP est valide, et le champ <b>Protocole = 06</b> dit de passer le contenu à TCP. L'en-tête IP est retiré. Il reste le segment TCP.`,
+   analogy:`Bob lit l'adresse postale de l'enveloppe suivante : c'est bien pour lui. Il la jette et continue.`,
+   key:`Si l'IP de destination avait été une autre machine, PC-B aurait ignoré le paquet.`,
+   terms:[['Décapsuler','Retirer l\'en-tête de sa couche.'],['Protocole 06','Numéro qui désigne TCP dans l\'en-tête IP.']],
+   quiz:{q:'Quel champ de l\'en-tête IP dit « donne ça à TCP » ?',o:['TTL','Protocole','Identifiant'],a:1,why:"Le champ Protocole (06 = TCP, 17 = UDP) indique à quelle couche supérieure confier le contenu."},
+   A:[],B:['3'],view:'ip',pkt:{x:560,y:88,label:()=>'Paquet IP',L:'3'},bub:{B:()=>`IP ${ipStr(CFG.ipB)} : c'est moi`},where:'Dans PC-B, couche 3' },
+
+ { tab:'Contrôle TCP', L:'4', tag:'Couche 4 · Transport · PC-B', title:"Le port envoie le message au bon programme",
+   lead:m=>`TCP vérifie son <b>checksum</b> (calculé sur l'en-tête, les données et les IP, tout est bon), accuse réception, puis regarde le <b>port de destination ${CFG.portB}</b> : l'application de chat y est à l'écoute. L'en-tête TCP est retiré, il ne reste que les données.`,
+   analogy:`Bob lit « Service Discussion, guichet ${CFG.portB} » et apporte le contenu à ce guichet.`,
+   key:`Sans port, la machine saurait que le message est pour elle, mais pas quelle application doit le recevoir.`,
+   terms:[['Socket','Point d\'entrée d\'une application : une IP + un port.'],['ACK','Réponse « bien reçu » que PC-B renvoie à PC-A.']],
+   quiz:{q:"Qu'est-ce qui permet de choisir la bonne application ?",o:["L'adresse MAC","Le port TCP","Le TTL"],a:1,why:"Le port TCP de destination oriente le message vers le bon programme."},
+   A:[],B:['4'],view:'tcp',pkt:{x:560,y:88,label:()=>'Segment TCP',L:'4'},bub:{B:()=>`Port ${CFG.portB} : appli chat`},where:'Dans PC-B, couche 4' },
+
+ { tab:'Arrivée', L:'7', tag:'Couches 5, 6 et 7 · Application · PC-B', title:'Bob lit ton message !',
+   lead:m=>`Les octets sont décodés (UTF-8) en texte, et l'application de Bob affiche : <b>"${esc(m.msg)}"</b>. Ton message a traversé 7 couches, a été emballé 3 fois, transporté en ${m.frameLen * 8} bits, puis déballé. Aucune couche n'a eu besoin de connaître le travail des autres.`,
+   analogy:`Bob a ouvert toutes les enveloppes et lit enfin ta lettre.`,
+   key:`C'est pour ça qu'on a inventé les couches : on peut changer le câble en Wi-Fi sans toucher à l'application, et inversement.`,
+   terms:[['Encapsulation','Emballer en descendant les couches.'],['Décapsulation','Déballer en remontant.'],['Modèle OSI','Découpage en 7 couches pour comprendre les réseaux.']],
+   quiz:{q:'Dans quel ordre Bob traite-t-il les couches ?',o:['7 vers 1','1 vers 7','Dans le désordre'],a:1,why:"Il commence par le signal (1), puis trame (2), paquet (3), segment (4) et enfin application (7) : l'inverse de l'envoi."},
+   A:[],B:['7','6','5'],view:'text',pkt:{x:560,y:88,label:m=>`"${m.msg.slice(0,9)}"`,L:'7'},bub:{B:m=>`"${m.msg.slice(0,16)}"`},done:true,where:'Dans PC-B : livraison réussie' }
+];
+/* ===== Rendu et interactions ===== */
+const $ = id => document.getElementById(id);
+const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const LAYER_COL = {'7':'c7','6':'c6','5':'c6','4':'c4','3':'c3','2':'c2','1':'c1'};
+const colStyle = L => `--col:var(--${LAYER_COL[L]});--tint:var(--${LAYER_COL[L]}t)`;
+const LAYERS = [['7','Application'],['6','Présentation'],['5','Session'],['4','Transport'],['3','Réseau'],['2','Liaison'],['1','Physique']];
+const LEG = {'7':'Données (7)','6':'Encodage (6)','4':'TCP (4)','3':'IP / ARP (3)','2':'Ethernet (2)'};
+const DEPTH = {text:0, chars:0, tcp:1, arp:2, ip:2, eth:3};
+
+let M = buildModel('Salut Bob');
+let cur = 0, timer = null, answered = {}, lastView = null, nestTimer = null;
+
+function buildTowers(){
+  ['A','B'].forEach(s => {
+    const t = $('tower'+s);
+    t.querySelectorAll('.lay').forEach(n => n.remove());
+    LAYERS.forEach(([id,name]) => {
+      const d = document.createElement('div');
+      d.className = 'lay'; d.dataset.id = id; d.setAttribute('style', colStyle(id));
+      d.innerHTML = `<i>${id}</i><span>${name}</span>`;
+      t.appendChild(d);
+    });
+  });
+}
+function buildDots(){
+  const nav = $('steps'); nav.innerHTML = '';
+  const groups = {0:'Emballer',6:'Voyager',8:'Déballer'};
+  STEPS.forEach((s,i) => {
+    if (groups[i]) { const g = document.createElement('span'); g.className = 'dot sep'; g.textContent = groups[i]; nav.appendChild(g); }
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'dot'; b.dataset.i = i; b.setAttribute('style', colStyle(s.L));
+    b.innerHTML = `<b>${i+1}</b><span>${s.tab}</span>`;
+    b.addEventListener('click', () => { stopAuto(); go(i); });
+    nav.appendChild(b);
+  });
+}
+
+/* --- Emboîtement des couches --- */
+function nestFor(view){
+  const dataBox = { L:'7', cap:`Données · ${M.payload.length} o`, head:'"' + (M.msg.length > 14 ? M.msg.slice(0,14) + '…' : M.msg) + '"', solo:true };
+  const tcpBox = { L:'4', cap:'Segment TCP · couche 4', head:'En-tête TCP · 20 o', inner:dataBox };
+  const ipBox = { L:'3', cap:`Paquet IP · couche 3 · ${M.total} o`, head:'En-tête IP · 20 o', inner:tcpBox };
+  const eth = { L:'2', cap:`Trame Ethernet · couche 2 · ${M.frameLen} o`, head:'En-tête MAC · 14 o', inner:ipBox, tail: (M.pad ? `Bourrage ${M.pad} o · ` : '') + 'FCS 4 o' };
+  switch(view){
+    case 'text': return { L:'7', cap:'Données · couche 7', head:`"${M.msg}"`, solo:true };
+    case 'chars': return { L:'6', cap:`Données encodées · ${M.payload.length} o`, head:hexs(M.payload).slice(0,12).join(' ') + (M.payload.length>12 ? ' …' : ''), solo:true };
+    case 'tcp': return tcpBox;
+    case 'arp': return { L:'2', cap:'Trame Ethernet · couche 2 · 42 o', head:'En-tête MAC · 14 o', inner:{ L:'3', cap:'Message ARP · 28 o', head:'Qui a 192.168.1.50 ?', solo:true } };
+    case 'ip': return ipBox;
+    case 'eth': return eth;
+    default: return dataBox;
+  }
+}
+function boxHTML(b, top){
+  const inner = b.inner ? boxHTML(b.inner, false) : '';
+  const head = b.head ? `<span class="part">${esc(b.head)}</span>` : '';
+  const tail = b.tail ? `<span class="part">${esc(b.tail)}</span>` : '';
+  return `<div class="box ${top ? 'top-wrap' : ''}" style="${colStyle(b.L)}"><span class="cap">${esc(b.cap)}</span>${head}${inner}${tail}</div>`;
+}
+function fieldsFor(view){
+  switch(view){
+    case 'text': return fText(M);
+    case 'chars': return fChars(M);
+    case 'tcp': return [...fTcp(M), ...fData(M)];
+    case 'arp': return fArp();
+    case 'ip': return [...fIp(M), ...fTcp(M), ...fData(M)];
+    case 'eth': return [...fEthHead(M), ...fIp(M), ...fTcp(M), ...fData(M), ...fEthTail(M)];
+    default: return fData(M);
+  }
+}
+function totalFor(view){
+  const n = M.payload.length;
+  switch(view){
+    case 'text': return `Ton texte : ${Array.from(M.msg).length} caractère(s)`;
+    case 'chars': return `${n} octet(s) après encodage UTF-8`;
+    case 'tcp': return `Segment : 20 (TCP) + ${n} (données) = ${20+n} octets`;
+    case 'arp': return `Trame ARP : 14 (Ethernet) + 28 (ARP) = 42 octets (complétée jusqu'à 60 par la carte réseau)`;
+    case 'ip': return `Paquet : 20 (IP) + 20 (TCP) + ${n} (données) = ${M.total} octets`;
+    case 'eth': return `Trame : 14 + 20 + 20 + ${n}${M.pad ? ' + ' + M.pad + ' (bourrage)' : ''} + 4 (FCS) = ${M.frameLen} octets`;
+  }
+  return '';
+}
+
+let curFields = [];
+function swapNest(view, force){
+  const nest = $('nest'), html = boxHTML(nestFor(view), true);
+  clearTimeout(nestTimer);
+  const old = nest.firstElementChild;
+  const unwrap = old && lastView !== null && DEPTH[view] < DEPTH[lastView];
+  if (unwrap && !REDUCED){
+    old.classList.add('leaving');
+    nestTimer = setTimeout(() => { nest.innerHTML = html; }, 300);
+  } else if (force || view !== lastView){
+    nest.innerHTML = html;
+  }
+  lastView = view;
+}
+function renderXray(s, force){
+  const view = s.view;
+  swapNest(view, force);
+  curFields = fieldsFor(view);
+  $('bytes').innerHTML = curFields.map((f,i) =>
+    `<button type="button" class="fld" data-i="${i}" style="${colStyle(f.L)};--i:${i}"><small>${esc(f.name)}</small><span>${esc(f.txt)}</span></button>`).join('');
+  $('total').textContent = totalFor(view);
+  const used = [...new Set(curFields.map(f => f.L))];
+  $('legend').innerHTML = used.map(L => `<span style="${colStyle(L)}"><i></i>${LEG[L] || L}</span>`).join('');
+  $('xhint').textContent = cur >= 8
+    ? "Ce que Bob reçoit à cette étape : l'enveloppe du dessus vient de disparaître. Clique sur un bloc pour le décoder."
+    : cur >= 6 ? "Le colis voyage tel quel : le câble et le switch ne changent rien à son contenu. Clique sur un bloc pour le décoder."
+    : "Ce qu'Alice fabrique à cette étape : une enveloppe de plus à chaque couche. Clique sur un bloc pour le décoder.";
+  const sel = s.sel ? curFields.findIndex(f => f.name === s.sel) : -1;
+  if (sel >= 0) showField(sel, false); else $('reader').innerHTML = 'Clique sur un bloc coloré pour le décoder.';
+}
+function showField(i, flash = true){
+  const f = curFields[i]; if (!f) return;
+  document.querySelectorAll('.fld').forEach(n => n.classList.toggle('sel', +n.dataset.i === i));
+  const r = $('reader');
+  r.innerHTML = `<b>${esc(f.name)}</b> · <span class="mono">${esc(f.txt.length > 60 ? f.txt.slice(0,60) + '…' : f.txt)}</span><br>${f.meaning}`;
+  if (flash && !REDUCED){ r.classList.remove('flash'); void r.offsetWidth; r.classList.add('flash'); }
+}
+
+/* --- Scène : colis, bulles, câbles, flux de bits --- */
+function bubble(id, x, text){
+  const g = $(id);
+  if (!text){ g.setAttribute('opacity', 0); return; }
+  const t = g.querySelector('text'); t.textContent = text;
+  const w = Math.max(96, text.length * 6.4 + 28);
+  const r = g.querySelector('rect'); r.setAttribute('width', w); r.setAttribute('x', -w/2);
+  g.setAttribute('transform', `translate(${Math.min(Math.max(x, w/2 + 2), 638 - w/2)},6)`);
+  g.setAttribute('opacity', 1);
+}
+const STREAM = (() => {
+  const g = $('stream'), ps = [];
+  for (let i = 0; i < 22; i++){
+    const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    c.setAttribute('r', i % 3 === 0 ? 3.4 : 2.4); c.setAttribute('fill', i % 2 ? 'var(--c1)' : 'var(--gold)');
+    g.appendChild(c); ps.push(c);
+  }
+  return { g, ps, mode: 0 };
+})();
+function tick(t){
+  if (STREAM.mode && !REDUCED){
+    const x0 = STREAM.mode === 1 ? 120 : 374, x1 = STREAM.mode === 1 ? 266 : 520;
+    STREAM.ps.forEach((c,i) => {
+      const u = (t * 0.00038 + i / STREAM.ps.length) % 1;
+      c.setAttribute('cx', x0 + u * (x1 - x0));
+      c.setAttribute('cy', 160 + Math.sin(u * 16 + i * 1.7) * 4.5);
+      c.setAttribute('opacity', Math.sin(u * Math.PI));
+    });
+  }
+  requestAnimationFrame(tick);
+}
+requestAnimationFrame(tick);
+let bitTimer = null;
+function renderScene(s){
+  const p = $('pkt'), label = s.pkt.label(M), col = LAYER_COL[s.pkt.L];
+  p.style.transform = `translate(${s.pkt.x}px,${s.pkt.y}px)`;
+  p.style.opacity = s.hide ? 0 : 1;
+  p.style.filter = `drop-shadow(0 0 .55rem var(--${col}))`;
+  const w = Math.max(84, label.length * 7.2 + 22);
+  const r = $('pktR'); r.setAttribute('width', w); r.setAttribute('x', -w/2);
+  r.setAttribute('fill', `var(--${col}t)`); r.setAttribute('stroke', `var(--${col})`);
+  $('pktT').textContent = label;
+  bubble('bubA', 80, s.bub.A ? s.bub.A(M) : '');
+  bubble('bubS', 320, s.bub.S ? s.bub.S(M) : '');
+  bubble('bubB', 560, s.bub.B ? s.bub.B(M) : '');
+  $('flow1').classList.toggle('live', s.cable === 1);
+  $('flow2').classList.toggle('live', s.cable === 2);
+  STREAM.mode = s.cable || 0;
+  STREAM.g.style.transition = 'opacity .5s'; STREAM.g.style.opacity = s.cable ? 1 : 0;
+  $('sw').classList.toggle('sw-on', cur === 7);
+  $('where').textContent = s.where || '';
+  clearInterval(bitTimer);
+  const bt = $('bits');
+  if (s.bits){
+    bt.setAttribute('opacity', 1);
+    let str = [...M.ethH.slice(0,9)].map(b => b.toString(2).padStart(8,'0')).join('');
+    bt.textContent = str.slice(0,16);
+    if (!REDUCED) bitTimer = setInterval(() => { str = str.slice(1) + str[0]; bt.textContent = str.slice(0,16); }, 140);
+  } else bt.setAttribute('opacity', 0);
+}
+function lightTowers(s, i){
+  [['A',s.A],['B',s.B]].forEach(([side,ids]) => {
+    $('tower'+side).querySelectorAll('.lay').forEach(n => n.classList.toggle('on', ids.includes(n.dataset.id)));
+  });
+  $('dirA').textContent = i <= 5 ? 'il emballe ▼' : i === 6 ? 'il envoie les bits ▶' : '';
+  $('dirB').textContent = i >= 8 ? 'il déballe ▲' : i === 6 ? '◀ attend le signal' : '';
+}
+
+/* --- Panneau d'explication --- */
+function renderExplain(s, i){
+  const e = $('explain');
+  e.setAttribute('style', colStyle(s.L));
+  e.innerHTML = `
+    <span class="tag">${esc(s.tag)}</span>
+    <h2>${esc(s.title)}</h2>
+    <p class="lead">${s.lead(M)}</p>
+    <div class="analogy"><small>Dans la vraie vie</small>${s.analogy}</div>
+    <div class="key"><svg viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="8" fill="none" stroke="var(--col)" stroke-width="2"/><path d="M5 9.5l2.6 2.6L13 6.5" fill="none" stroke="var(--col)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><p><b>À retenir.</b> ${s.key}</p></div>`;
+  $('terms').innerHTML = s.terms.map(([t,d]) => `<li style="${colStyle(s.L)}"><b>${esc(t)}</b><br>${esc(d)}</li>`).join('');
+  drawQuiz(s, i);
+}
+function drawQuiz(s, i){
+  const q = s.quiz, done = answered[i];
+  $('quiz').innerHTML = `<p class="q">Question rapide : ${esc(q.q)}</p><div class="opts">${q.o.map((o,k) =>
+    `<button type="button" class="opt ${done != null ? (k === q.a ? 'good' : (k === done ? 'wrong' : '')) : ''}" data-k="${k}">${esc(o)}</button>`).join('')}</div>
+    <p class="why">${done != null ? (done === q.a ? 'Bravo. ' : 'Pas tout à fait. ') + esc(q.why) : ''}</p>`;
+  $('quiz').querySelectorAll('.opt').forEach(b => b.addEventListener('click', () => { answered[i] = +b.dataset.k; drawQuiz(s, i); }));
+}
+
+function go(i, force){
+  cur = Math.max(0, Math.min(STEPS.length - 1, i));
+  const s = STEPS[cur];
+  const nav = $('steps');
+  document.querySelectorAll('.dot[data-i]').forEach(d => {
+    const k = +d.dataset.i; d.classList.toggle('on', k === cur); d.classList.toggle('done', k < cur);
+    if (k === cur) nav.scrollTo({ left: d.offsetLeft - nav.clientWidth / 2 + d.clientWidth / 2, behavior: REDUCED ? 'auto' : 'smooth' });
+  });
+  $('railFill').style.width = (cur / (STEPS.length - 1) * 100) + '%';
+  $('count').textContent = `Étape ${cur+1} sur ${STEPS.length}`;
+  $('btnPrev').disabled = cur === 0;
+  $('btnNext').disabled = cur === STEPS.length - 1;
+  renderScene(s); lightTowers(s, cur); renderExplain(s, cur); renderXray(s, force);
+}
+
+/* --- Lecture automatique et commandes --- */
+const DELAYS = {1:11000, 2:7500, 3:4500};
+function stopAuto(){ clearInterval(timer); timer = null; $('btnPlay').textContent = '▶ Lecture auto'; }
+function startAuto(){
+  if (cur === STEPS.length - 1) go(0);
+  $('btnPlay').textContent = '❚❚ Pause';
+  clearInterval(timer);
+  timer = setInterval(() => { if (cur >= STEPS.length - 1) stopAuto(); else go(cur + 1); }, DELAYS[$('speed').value]);
+}
+$('btnPlay').addEventListener('click', () => timer ? stopAuto() : startAuto());
+$('speed').addEventListener('input', () => { if (timer) startAuto(); });
+$('btnNext').addEventListener('click', () => { stopAuto(); go(cur + 1); });
+$('btnPrev').addEventListener('click', () => { stopAuto(); go(cur - 1); });
+$('bytes').addEventListener('click', e => { const b = e.target.closest('.fld'); if (b) showField(+b.dataset.i); });
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT') return;
+  if (e.key === 'ArrowRight') { stopAuto(); go(cur + 1); }
+  if (e.key === 'ArrowLeft') { stopAuto(); go(cur - 1); }
+});
+function toast(t){ const n = $('toast'); n.textContent = t; n.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(() => n.classList.remove('show'), 3200); }
+$('sendForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const v = $('msg').value.trim() || 'Salut Bob';
+  M = buildModel(v); answered = {}; stopAuto(); go(0, true);
+  toast(`Message recalculé : ${M.payload.length} octets, trame de ${M.frameLen} octets`);
+});
+$('btnTheme').addEventListener('click', () => {
+  const root = document.documentElement;
+  const dark = root.dataset.theme ? root.dataset.theme === 'dark' : !window.matchMedia('(prefers-color-scheme: light)').matches;
+  root.dataset.theme = dark ? 'light' : 'dark';
+});
+document.addEventListener('pointermove', e => {
+  const g = e.target.closest && e.target.closest('.glass'); if (!g) return;
+  const r = g.getBoundingClientRect();
+  g.style.setProperty('--mx', (e.clientX - r.left) + 'px'); g.style.setProperty('--my', (e.clientY - r.top) + 'px');
+}, { passive:true });
+
+buildTowers(); buildDots();
+go(0, true);
+</script>
+
+</body></html>
