@@ -1,6 +1,11 @@
 <!doctype html>
 <html lang="fr"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Suis un message à travers les 7 couches du modèle OSI, octet par octet.">
+<meta property="og:type" content="website"><meta property="og:title" content="Voyage d'un message">
+<meta property="og:description" content="Un atelier interactif pour comprendre comment un message traverse un réseau.">
+<meta name="theme-color" content="#07090f">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📦</text></svg>">
 <title>Voyage d'un message — le réseau, octet par octet</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -56,7 +61,7 @@ body{margin:0;background:var(--bg);color:#e8edf8;font-family:'Plus Jakarta Sans'
 <header class="glass" style="position:fixed;top:14px;left:50%;transform:translateX(-50%);width:min(1080px,calc(100% - 24px));z-index:50;border-radius:999px;padding:9px 12px 9px 20px;display:flex;align-items:center;justify-content:space-between">
   <a href="#top" class="f-d flex items-center gap-2 font-extrabold text-[17px] text-white"><span class="grid place-items-center w-7 h-7 rounded-lg" style="background:linear-gradient(135deg,#7d9bff,#ff6fa3)"><i data-lucide="send" class="w-4 h-4 text-[#07090f]"></i></span>Voyage d'un message</a>
   <nav class="hidden md:flex gap-7"><a class="nl" href="#chiffres">Concept</a><a class="nl" href="#atouts">Atouts</a><a class="nl" href="#demo">Démo</a><a class="nl" href="#fin">Commencer</a></nav>
-  <a class="btn btn-p !py-2 !px-4 !text-[14px]" data-mag href="https://claude.ai/artifact/UogLBojHbPii1BbvhLJAoy" target="_blank" rel="noopener">Lancer le simulateur <i data-lucide="arrow-right" class="w-4 h-4"></i></a>
+  <a class="btn btn-p !py-2 !px-4 !text-[14px]" data-mag href="simulateur.html">Lancer le simulateur <i data-lucide="arrow-right" class="w-4 h-4"></i></a>
 </header>
 
 <main id="top">
@@ -65,7 +70,7 @@ body{margin:0;background:var(--bg);color:#e8edf8;font-family:'Plus Jakarta Sans'
   <h1 class="rv f-d font-extrabold grad text-[44px] leading-[1.02] sm:text-6xl md:text-[84px] mt-7 mx-auto max-w-4xl" style="--d:.08s">Suis ton message, octet par octet.</h1>
   <p class="rv text-slate-400 text-lg md:text-xl max-w-2xl mx-auto mt-6 leading-relaxed" style="--d:.16s">Tape un mot sur un ordinateur et regarde-le traverser le réseau : emballé couche par couche, aiguillé par le switch, puis déballé chez son destinataire.</p>
   <div class="rv flex flex-wrap justify-center gap-3 mt-9" style="--d:.24s">
-    <a class="btn btn-p" data-mag href="https://claude.ai/artifact/UogLBojHbPii1BbvhLJAoy" target="_blank" rel="noopener"><i data-lucide="play" class="w-4 h-4"></i>Lancer le simulateur</a>
+    <a class="btn btn-p" data-mag href="simulateur.html"><i data-lucide="play" class="w-4 h-4"></i>Lancer le simulateur</a>
     <a class="btn btn-s" data-mag href="#demo">Voir le trajet</a>
   </div>
 
@@ -130,7 +135,7 @@ body{margin:0;background:var(--bg);color:#e8edf8;font-family:'Plus Jakarta Sans'
     <div class="absolute -top-24 left-1/2 -translate-x-1/2 w-[60%] h-48 rounded-full blur-3xl" style="background:linear-gradient(90deg,#2447d6,#7b3fd1,#c2255c);opacity:.5"></div>
     <h2 class="relative f-d font-extrabold grad text-4xl md:text-6xl max-w-2xl mx-auto">Prêt à envoyer ton premier message ?</h2>
     <p class="relative text-slate-400 mt-5 max-w-lg mx-auto text-lg">Douze étapes, un quiz par étape, aucune installation. Ça se passe dans ton navigateur.</p>
-    <a class="btn btn-p relative mt-9 !px-8 !py-4 !text-base" data-mag href="https://claude.ai/artifact/UogLBojHbPii1BbvhLJAoy" target="_blank" rel="noopener"><i data-lucide="send" class="w-4 h-4"></i>Lancer le simulateur</a>
+    <a class="btn btn-p relative mt-9 !px-8 !py-4 !text-base" data-mag href="simulateur.html"><i data-lucide="send" class="w-4 h-4"></i>Lancer le simulateur</a>
   </div>
 </section>
 </main>
@@ -140,7 +145,7 @@ body{margin:0;background:var(--bg);color:#e8edf8;font-family:'Plus Jakarta Sans'
     <div><div class="f-d font-extrabold text-lg text-white">Voyage d'un message</div><p class="text-slate-400 mt-3 max-w-xs leading-relaxed">Un atelier interactif pour comprendre comment un message traverse un réseau.</p></div>
     <div><b class="text-white">Explorer</b><ul class="mt-3 space-y-2 text-slate-400"><li><a class="nl" href="#chiffres">Concept</a></li><li><a class="nl" href="#atouts">Atouts</a></li><li><a class="nl" href="#demo">Démo</a></li></ul></div>
     <div><b class="text-white">Modèle OSI</b><ul class="mt-3 space-y-2 text-slate-400"><li>Application</li><li>Transport</li><li>Réseau</li><li>Liaison</li></ul></div>
-    <div><b class="text-white">Simulateur</b><ul class="mt-3 space-y-2 text-slate-400"><li><a class="nl" href="https://claude.ai/artifact/UogLBojHbPii1BbvhLJAoy" target="_blank" rel="noopener">Lancer le voyage</a></li><li><a class="nl" href="#top">Retour en haut</a></li></ul></div>
+    <div><b class="text-white">Simulateur</b><ul class="mt-3 space-y-2 text-slate-400"><li><a class="nl" href="simulateur.html">Lancer le voyage</a></li><li><a class="nl" href="#top">Retour en haut</a></li></ul></div>
   </div>
   <p class="max-w-6xl mx-auto mt-12 text-xs text-slate-500">© 2026 Voyage d'un message. Fait pour apprendre, pas pour impressionner un pare-feu.</p>
 </footer>
