@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Voyage d'un message — le réseau, octet par octet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<style>
+:root{--bg:#07090f;--c7:#ff6fa3;--c6:#b78cff;--c4:#7d9bff;--c3:#4fd0e6;--c2:#4cd3a0;--c1:#ffb547;--ease:cubic-bezier(.2,.8,.2,1);padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:90px;background:var(--bg)}
+body{margin:0;background:var(--bg);color:#e8edf8;font-family:'Plus Jakarta Sans',system-ui,sans-serif;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+.f-d{font-family:'Bricolage Grotesque','Trebuchet MS',sans-serif;letter-spacing:-.03em}.f-m{font-family:'IBM Plex Mono',ui-monospace,monospace}
+:focus-visible{outline:2px solid var(--c4);outline-offset:3px;border-radius:8px}
+.grid-bg{position:fixed;inset:0;z-index:-2;background-image:radial-gradient(rgba(255,255,255,.08) 1px,transparent 1px);background-size:28px 28px;-webkit-mask-image:radial-gradient(ellipse at 50% 15%,#000 15%,transparent 72%);mask-image:radial-gradient(ellipse at 50% 15%,#000 15%,transparent 72%)}
+.orb{position:fixed;z-index:-1;border-radius:50%;filter:blur(100px);opacity:.4;pointer-events:none;animation:fl 20s ease-in-out infinite alternate}
+@keyframes fl{to{transform:translate3d(6vw,5vh,0) scale(1.15)}}
+.glass{position:relative;background:linear-gradient(180deg,rgba(255,255,255,.065),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.1);border-radius:24px;-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);box-shadow:0 0 50px -22px rgba(125,155,255,.45);transition:transform .5s var(--ease),border-color .4s,box-shadow .5s}
+.glass::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .4s;background:radial-gradient(380px circle at var(--mx,50%) var(--my,0),rgba(125,155,255,.16),transparent 60%)}
+.glass:hover::before{opacity:1}.hv:hover{transform:translateY(-4px) scale(1.012);border-color:rgba(255,255,255,.22);box-shadow:0 0 60px -16px rgba(183,140,255,.5)}
+.grad{background:linear-gradient(100deg,#fff 10%,#b9c7ff 45%,#ff9cc2 85%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.btn{position:relative;display:inline-flex;align-items:center;gap:8px;padding:13px 22px;border-radius:999px;font-weight:600;font-size:15px;transition:transform .35s var(--ease),box-shadow .4s,background .3s,border-color .3s;overflow:hidden;cursor:pointer;border:1px solid transparent}
+.btn-p{color:#07090f;background:linear-gradient(120deg,#7d9bff,#b78cff 55%,#ff6fa3);box-shadow:0 10px 40px -10px rgba(183,140,255,.8)}
+.btn-p::after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.65),transparent);transform:skewX(-20deg);animation:sh 3.6s ease-in-out infinite}
+@keyframes sh{0%,55%{left:-60%}100%{left:130%}}
+.btn-p:hover{box-shadow:0 14px 50px -8px rgba(183,140,255,1)}
+.btn-s{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.14);color:#e8edf8}.btn-s:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.3)}
+.btn:active{scale:.96}[data-mag]{transition:transform .25s var(--ease),box-shadow .4s,background .3s}
+.nl{color:#97a4c0;font-size:14px;transition:color .3s}.nl:hover{color:#fff}
+.pulse{width:8px;height:8px;border-radius:50%;background:var(--c2);box-shadow:0 0 0 0 rgba(76,211,160,.7);animation:pu 2s infinite}
+@keyframes pu{70%{box-shadow:0 0 0 9px rgba(76,211,160,0)}100%{box-shadow:0 0 0 0 rgba(76,211,160,0)}}
+.js .rv{opacity:0;transform:translateY(30px);filter:blur(6px);transition:opacity .9s var(--ease),transform .9s var(--ease),filter .9s var(--ease);transition-delay:var(--d,0s)}
+.js .rv.in{opacity:1;transform:none;filter:none}
+.lay{position:relative;border:1.5px solid transparent;border-radius:14px;padding:0;transition:padding .7s var(--ease),border-color .6s,background .6s,box-shadow .6s}
+.lay>.cap{position:absolute;top:0;left:12px;transform:translateY(-50%);font-size:10.5px;font-weight:600;padding:1px 9px;border-radius:7px;background:var(--c);color:#07090f;opacity:0;transition:opacity .5s;white-space:nowrap}
+.lay.on{padding:22px 12px 12px;border-color:var(--c);background:color-mix(in srgb,var(--c) 11%,transparent);box-shadow:0 0 30px -10px var(--c)}.lay.on>.cap{opacity:1}
+#core{display:block;text-align:center;font-weight:600;font-size:15px;padding:6px 4px;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mq{display:flex;gap:14px;width:max-content;animation:mq 38s linear infinite}.mq:hover{animation-play-state:paused}
+@keyframes mq{to{transform:translateX(-50%)}}
+.chip{padding:9px 18px;border-radius:999px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);font-size:14px;color:#c4cde2;white-space:nowrap}
+.hexf{display:inline-block;padding:3px 7px;border-radius:7px;border:1px solid var(--c);color:var(--c);background:color-mix(in srgb,var(--c) 12%,transparent);animation:hx 3.2s ease-in-out infinite;animation-delay:var(--d)}
+@keyframes hx{40%{background:var(--c);color:#07090f;transform:translateY(-3px)}}
+.tab{padding:14px 16px;border-radius:16px;border:1px solid transparent;text-align:left;cursor:pointer;transition:all .4s var(--ease);color:#97a4c0;background:transparent;width:100%}
+.tab:hover{background:rgba(255,255,255,.05)}.tab[aria-selected=true]{background:rgba(255,255,255,.07);border-color:color-mix(in srgb,var(--c) 60%,transparent);color:#fff;box-shadow:0 0 36px -14px var(--c)}
+.node{position:absolute;top:50%;transform:translate(-50%,-50%);text-align:center;font-size:12px;color:#97a4c0}
+.node i{display:block;margin:0 auto 6px;width:54px;height:40px;border-radius:9px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05)}
+#pk{position:absolute;top:50%;transform:translate(-50%,-50%);padding:6px 12px;border-radius:10px;font-size:12px;font-weight:600;color:#07090f;transition:left 1s cubic-bezier(.65,0,.25,1),background .5s,box-shadow .5s;z-index:2;white-space:nowrap}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.js .rv{opacity:1;transform:none;filter:none}}
+</style></head>
+<body>
+<div class="grid-bg"></div>
+<div class="orb" style="width:46vmax;height:46vmax;left:-12vmax;top:-14vmax;background:#2447d6"></div>
+<div class="orb" style="width:38vmax;height:38vmax;right:-10vmax;top:18vh;background:#7b3fd1;animation-delay:-6s"></div>
+<div class="orb" style="width:34vmax;height:34vmax;left:25vw;bottom:-18vmax;background:#c2255c;opacity:.22;animation-delay:-11s"></div>
+
+<header class="glass" style="position:fixed;top:14px;left:50%;transform:translateX(-50%);width:min(1080px,calc(100% - 24px));z-index:50;border-radius:999px;padding:9px 12px 9px 20px;display:flex;align-items:center;justify-content:space-between">
+  <a href="#top" class="f-d flex items-center gap-2 font-extrabold text-[17px] text-white"><span class="grid place-items-center w-7 h-7 rounded-lg" style="background:linear-gradient(135deg,#7d9bff,#ff6fa3)"><i data-lucide="send" class="w-4 h-4 text-[#07090f]"></i></span>Voyage d'un message</a>
+  <nav class="hidden md:flex gap-7"><a class="nl" href="#chiffres">Concept</a><a class="nl" href="#atouts">Atouts</a><a class="nl" href="#demo">Démo</a><a class="nl" href="#fin">Commencer</a></nav>
+  <a class="btn btn-p !py-2 !px-4 !text-[14px]" data-mag href="https://claude.ai/artifact/UogLBojHbPii1BbvhLJAoy" target="_blank" rel="noopener">Lancer le simulateur <i data-lucide="arrow-right" class="w-4 h-4"></i></a>
+</header>
+
+<main id="top">
+<section class="px-5 pt-36 md:pt-44 pb-16 text-center max-w-6xl mx-auto">
+  <div class="rv inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full border border-white/10 bg-white/5 text-[13px] text-slate-300"><span class="pulse"></span>7 couches OSI · octets calculés en direct</div>
+  <h1 class="rv f-d font-extrabold grad text-[44px] leading-[1.02] sm:text-6xl md:text-[84px] mt-7 mx-auto max-w-4xl" style="--d:.08s">Suis ton message, octet par octet.</h1>
+  <p class="rv text-slate-400 text-lg md:text-xl max-w-2xl mx-auto mt-6 leading-relaxed" style="--d:.16s">Tape un mot sur un ordinateur et regarde-le traverser le réseau : emballé couche par couche, aiguillé par le switch, puis déballé chez son destinataire.</p>
+  <div class="rv flex flex-wrap justify-center gap-3 mt-9" style="--d:.24s">
+    <a class="btn btn-p" data-mag href="https://claude.ai/artifact/UogLBojHbPii1BbvhLJAoy" target="_blank" rel="noopener"><i data-lucide="play" class="w-4 h-4"></i>Lancer le simulateur</a>
+    <a class="btn btn-s" data-mag href="#demo">Voir le trajet</a>
+  </div>
+
+  <div class="rv mt-16 mx-auto max-w-3xl text-left" style="--d:.3s;perspective:1400px">
+    <div id="tilt" class="glass p-5 md:p-7" style="transition:transform .25s var(--ease);box-shadow:0 30px 120px -30px rgba(125,155,255,.55)">
+      <div class="flex items-center gap-2 mb-5"><i class="w-3 h-3 rounded-full bg-[#ff5f57]"></i><i class="w-3 h-3 rounded-full bg-[#febc2e]"></i><i class="w-3 h-3 rounded-full bg-[#28c840]"></i><span class="f-m text-xs text-slate-500 ml-3">encapsulation.live</span></div>
+      <label class="text-xs text-slate-400" for="msg">Ton message (essaie le tien)</label>
+      <input id="msg" maxlength="24" value="Salut Bob" autocomplete="off" spellcheck="false" class="f-m w-full mt-2 mb-6 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white outline-none focus:border-[#7d9bff] focus:shadow-[0_0_0_4px_rgba(125,155,255,.18)] transition">
+      <div id="nest" class="pt-3"></div>
+      <div class="f-m text-[13px] mt-6 text-slate-400 break-all" id="hex"></div>
+      <div class="flex justify-between items-center mt-4 text-sm"><span id="phase" class="text-slate-300"></span><span class="f-m text-slate-400">trame : <b id="tot" class="text-white">0</b> octets</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="py-6 overflow-hidden" aria-label="Protocoles rencontrés"><div class="mq" id="mq"></div></section>
+
+<section id="chiffres" class="px-5 py-24 max-w-6xl mx-auto">
+  <div class="grid md:grid-cols-3 gap-4 text-center">
+    <div class="rv glass hv p-8"><div class="f-d font-extrabold text-7xl grad"><span data-to="7">0</span></div><p class="text-slate-400 mt-2">couches du modèle OSI, de l'application au câble</p></div>
+    <div class="rv glass hv p-8" style="--d:.1s"><div class="f-d font-extrabold text-7xl grad"><span data-to="12">0</span></div><p class="text-slate-400 mt-2">étapes guidées, chacune avec son quiz</p></div>
+    <div class="rv glass hv p-8" style="--d:.2s"><div class="f-d font-extrabold text-7xl grad"><span data-to="54">0</span></div><p class="text-slate-400 mt-2">octets d'en-têtes ajoutés avant même ton texte (14 + 20 + 20)</p></div>
+  </div>
+</section>
+
+<section id="atouts" class="px-5 pb-24 max-w-6xl mx-auto">
+  <h2 class="rv f-d font-extrabold text-4xl md:text-6xl grad max-w-3xl">Comprendre le réseau en le regardant faire.</h2>
+  <div class="grid md:grid-cols-6 gap-4 mt-12">
+    <article class="rv glass hv p-7 md:col-span-4">
+      <i data-lucide="binary" class="w-6 h-6 text-[#7d9bff]"></i><h3 class="f-d font-extrabold text-2xl mt-4">Les vrais octets, colorés par couche</h3>
+      <p class="text-slate-400 mt-2 max-w-md">Checksum, CRC-32, ports, adresses : tout est calculé à partir de ton message. Clique sur un bloc pour le décoder.</p>
+      <div class="f-m text-[13px] flex flex-wrap gap-2 mt-6" id="hexbento"></div>
+    </article>
+    <article class="rv glass hv p-7 md:col-span-2" style="--d:.1s">
+      <i data-lucide="network" class="w-6 h-6 text-[#4fd0e6]"></i><h3 class="f-d font-extrabold text-2xl mt-4">Une scène claire</h3>
+      <p class="text-slate-400 mt-2">PC-A, switch, PC-B : le colis se déplace sous tes yeux.</p>
+    </article>
+    <article class="rv glass hv p-7 md:col-span-2"><i data-lucide="circle-help" class="w-6 h-6 text-[#ff6fa3]"></i><h3 class="f-d font-extrabold text-2xl mt-4">Un quiz à chaque étape</h3><p class="text-slate-400 mt-2">Une question rapide pour vérifier que l'idée est passée.</p></article>
+    <article class="rv glass hv p-7 md:col-span-2" style="--d:.1s"><i data-lucide="clapperboard" class="w-6 h-6 text-[#ffb547]"></i><h3 class="f-d font-extrabold text-2xl mt-4">Lecture automatique</h3><p class="text-slate-400 mt-2">Trois vitesses pour laisser défiler le voyage tout seul.</p></article>
+    <article class="rv glass hv p-7 md:col-span-2" style="--d:.2s"><i data-lucide="keyboard" class="w-6 h-6 text-[#4cd3a0]"></i><h3 class="f-d font-extrabold text-2xl mt-4">Ton propre message</h3><p class="text-slate-400 mt-2">Change le texte : toute la trame est recalculée instantanément.</p></article>
+  </div>
+</section>
+
+<section id="demo" class="px-5 pb-24 max-w-6xl mx-auto">
+  <h2 class="rv f-d font-extrabold text-4xl md:text-6xl grad max-w-3xl">Le trajet, en quatre temps.</h2>
+  <div class="rv glass mt-12 p-4 md:p-6 grid lg:grid-cols-[320px_1fr] gap-6" style="--c:#ff6fa3" id="show">
+    <div role="tablist" aria-label="Étapes du trajet" class="grid sm:grid-cols-2 lg:grid-cols-1 gap-2" id="tabs"></div>
+    <div class="flex flex-col gap-5">
+      <div class="relative h-56 rounded-2xl border border-white/10 bg-black/20 overflow-hidden" id="scene">
+        <div class="absolute left-[8%] right-[8%] top-1/2 h-[3px] rounded bg-white/10"></div>
+        <div class="absolute left-[8%] top-1/2 h-[3px] rounded transition-all duration-1000" id="trail" style="background:var(--c)"></div>
+        <div class="node" style="left:8%"><i></i>PC-A</div><div class="node" style="left:50%"><i style="width:80px;height:30px"></i>Switch</div><div class="node" style="left:92%"><i></i>PC-B</div>
+        <div id="pk" style="left:8%;top:28%">Salut Bob</div>
+      </div>
+      <div><h3 class="f-d font-extrabold text-2xl md:text-3xl" id="sh"></h3><p class="text-slate-400 mt-2 max-w-xl leading-relaxed" id="sp"></p><div class="flex flex-wrap gap-2 mt-4" id="sf"></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="fin" class="px-5 pb-28 max-w-5xl mx-auto">
+  <div class="rv glass relative overflow-hidden text-center px-6 py-16 md:py-24" style="box-shadow:0 0 120px -30px rgba(183,140,255,.6)">
+    <div class="absolute -top-24 left-1/2 -translate-x-1/2 w-[60%] h-48 rounded-full blur-3xl" style="background:linear-gradient(90deg,#2447d6,#7b3fd1,#c2255c);opacity:.5"></div>
+    <h2 class="relative f-d font-extrabold grad text-4xl md:text-6xl max-w-2xl mx-auto">Prêt à envoyer ton premier message ?</h2>
+    <p class="relative text-slate-400 mt-5 max-w-lg mx-auto text-lg">Douze étapes, un quiz par étape, aucune installation. Ça se passe dans ton navigateur.</p>
+    <a class="btn btn-p relative mt-9 !px-8 !py-4 !text-base" data-mag href="https://claude.ai/artifact/UogLBojHbPii1BbvhLJAoy" target="_blank" rel="noopener"><i data-lucide="send" class="w-4 h-4"></i>Lancer le simulateur</a>
+  </div>
+</section>
+</main>
+
+<footer class="border-t border-white/10 px-5 py-14">
+  <div class="max-w-6xl mx-auto grid gap-10 md:grid-cols-[1.4fr_1fr_1fr_1fr] text-sm">
+    <div><div class="f-d font-extrabold text-lg text-white">Voyage d'un message</div><p class="text-slate-400 mt-3 max-w-xs leading-relaxed">Un atelier interactif pour comprendre comment un message traverse un réseau.</p></div>
+    <div><b class="text-white">Explorer</b><ul class="mt-3 space-y-2 text-slate-400"><li><a class="nl" href="#chiffres">Concept</a></li><li><a class="nl" href="#atouts">Atouts</a></li><li><a class="nl" href="#demo">Démo</a></li></ul></div>
+    <div><b class="text-white">Modèle OSI</b><ul class="mt-3 space-y-2 text-slate-400"><li>Application</li><li>Transport</li><li>Réseau</li><li>Liaison</li></ul></div>
+    <div><b class="text-white">Simulateur</b><ul class="mt-3 space-y-2 text-slate-400"><li><a class="nl" href="https://claude.ai/artifact/UogLBojHbPii1BbvhLJAoy" target="_blank" rel="noopener">Lancer le voyage</a></li><li><a class="nl" href="#top">Retour en haut</a></li></ul></div>
+  </div>
+  <p class="max-w-6xl mx-auto mt-12 text-xs text-slate-500">© 2026 Voyage d'un message. Fait pour apprendre, pas pour impressionner un pare-feu.</p>
+</footer>
+
+<script>
+lucide.createIcons();
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+document.documentElement.classList.add('js');
+/* Apparitions */
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.12});
+$$('.rv').forEach(el=>io.observe(el));
+/* Compteurs */
+const co=new IntersectionObserver(es=>es.forEach(e=>{if(!e.isIntersecting)return;co.unobserve(e.target);const to=+e.target.dataset.to,t0=performance.now();
+  const f=t=>{const p=Math.min(1,(t-t0)/1600);e.target.textContent=Math.round(to*(1-Math.pow(1-p,4)));if(p<1)requestAnimationFrame(f)};requestAnimationFrame(f)}));
+$$('[data-to]').forEach(el=>co.observe(el));
+/* Lueur curseur + boutons magnétiques + inclinaison */
+document.addEventListener('pointermove',e=>{const g=e.target.closest&&e.target.closest('.glass');if(g){const r=g.getBoundingClientRect();g.style.setProperty('--mx',e.clientX-r.left+'px');g.style.setProperty('--my',e.clientY-r.top+'px')}},{passive:true});
+$$('[data-mag]').forEach(b=>{b.addEventListener('pointermove',e=>{const r=b.getBoundingClientRect();b.style.transform=`translate(${(e.clientX-r.left-r.width/2)*.22}px,${(e.clientY-r.top-r.height/2)*.32}px)`});b.addEventListener('pointerleave',()=>b.style.transform='')});
+const tilt=$('#tilt'),tw=tilt.parentElement;
+tw.addEventListener('pointermove',e=>{const r=tw.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;tilt.style.transform=`rotateX(${-y*7}deg) rotateY(${x*9}deg)`});
+tw.addEventListener('pointerleave',()=>tilt.style.transform='');
+/* Bandeau de protocoles */
+$('#mq').innerHTML=[...Array(2)].map(()=>['HTTP','TLS','TCP','UDP','IPv4','ARP','ICMP','DNS','Ethernet','CRC-32','Checksum','MAC','Ports'].map(p=>`<span class="chip f-m">${p}</span>`).join('')).join('');
+/* Encapsulation vivante */
+const L=[{n:'Ethernet · 14 o',c:'#ffb547',b:14,t:'Liaison : Ethernet ajoute les adresses MAC et un CRC'},{n:'IP · 20 o',c:'#4fd0e6',b:20,t:'Réseau : IP ajoute les adresses de PC-A et PC-B'},{n:'TCP · 20 o',c:'#7d9bff',b:20,t:'Transport : TCP ajoute les ports et la numérotation'},{n:'Données',c:'#ff6fa3',b:0,t:'Application : ton message, tel que tu l\'as tapé'}];
+let h='';L.forEach((l,i)=>{h+=`<div class="lay" style="--c:${l.c}"><span class="cap">${l.n}</span>`+(i==3?'<b id="core"></b>':'')});$('#nest').innerHTML=h+'</div>'.repeat(4);
+const msg=$('#msg'),enc=new TextEncoder();let k=1,t=0;
+const draw=()=>{const v=msg.value||' ',by=[...enc.encode(v)];
+  $$('#nest .lay').forEach((el,i)=>el.classList.toggle('on',i>=4-k));$('#core').textContent=v;
+  $('#hex').innerHTML=by.slice(0,14).map(b=>b.toString(16).padStart(2,'0')).join(' ')+(by.length>14?' …':'');
+  $('#tot').textContent=L.reduce((s,l,i)=>s+(i>=4-k?(l.b||by.length):0),0);$('#phase').textContent=`${k}/4 · ${L[4-k].t}`};
+draw();msg.addEventListener('input',draw);
+setInterval(()=>{if(document.hidden)return;t=(t+1)%6;k=Math.min(4,t+1);draw()},1500);
+/* Bento : octets animés */
+const cols=['#ffb547','#4fd0e6','#4fd0e6','#7d9bff','#7d9bff','#ff6fa3','#ff6fa3','#ff6fa3','#ffb547'];
+$('#hexbento').innerHTML=['08 00 27','c0 a8 01 0a','c0 a8 01 32','c0 01 00 50','00 00 00 01','53 61 6c','75 74 20','42 6f 62','a3 f1 09 2c'].map((x,i)=>`<span class="hexf" style="--c:${cols[i]};--d:${i*.28}s">${x}</span>`).join('');
+/* Démo en quatre temps */
+const S=[{t:'Emballage',x:8,c:'#ff6fa3',h:'PC-A emballe le message',p:'Le texte descend les couches : TCP ajoute les ports, IP les adresses, Ethernet les adresses MAC. Ton message devient une trame.',f:['Ports TCP','Adresses IP','Adresses MAC']},
+{t:'Sur le câble',x:29,c:'#ffb547',h:'La trame devient des signaux',p:'La couche physique transforme les octets en suite de 0 et de 1, envoyés sur le câble en signaux électriques ou lumineux.',f:['Bits 0 et 1','Signal sur le câble','CRC-32 en fin de trame']},
+{t:'Aiguillage',x:50,c:'#4fd0e6',h:'Le switch lit l\'adresse MAC',p:'Il ne regarde que la couche 2 : l\'adresse MAC de destination lui dit sur quel port renvoyer la trame.',f:['Table MAC','Niveau 2 seulement','Un seul port de sortie']},
+{t:'Déballage',x:92,c:'#4cd3a0',h:'PC-B déballe couche par couche',p:'Ethernet vérifie le CRC, IP vérifie l\'adresse, TCP remet les octets à l\'application. Bob lit enfin ton message.',f:['CRC valide','Adresse IP reconnue','Texte restitué']}];
+const show=$('#show'),tabs=$('#tabs'),pk=$('#pk');let cs=0,last=0;
+tabs.innerHTML=S.map((s,i)=>`<button class="tab" role="tab" data-i="${i}" style="--c:${s.c}"><span class="f-m text-xs opacity-70">Temps ${i+1}</span><br><b class="f-d text-lg">${s.t}</b></button>`).join('');
+const pick=i=>{cs=i;const s=S[i];show.style.setProperty('--c',s.c);
+  $$('.tab').forEach((b,j)=>b.setAttribute('aria-selected',j===i));
+  pk.style.left=s.x+'%';pk.style.top=i==1?'50%':'30%';pk.style.background=s.c;pk.style.boxShadow=`0 0 28px ${s.c}`;
+  $('#trail').style.width=(s.x-8)/84*84+'%';
+  $('#sh').textContent=s.h;$('#sp').textContent=s.p;$('#sf').innerHTML=s.f.map(f=>`<span class="chip">${f}</span>`).join('')};
+tabs.addEventListener('click',e=>{const b=e.target.closest('.tab');if(b){last=Date.now();pick(+b.dataset.i)}});
+pick(0);setInterval(()=>{if(!document.hidden&&Date.now()-last>9000)pick((cs+1)%4)},4800);
+</script>
+</body></html>
